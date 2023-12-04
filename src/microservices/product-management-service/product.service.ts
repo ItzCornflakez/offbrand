@@ -1,18 +1,38 @@
 import {Injectable} from '@nestjs/common';
-
-import {Product} from './product.model';
+import { Category, Prisma, Product } from '@prisma/client';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class ProductsService{
-    products: Product[] = [];
+    constructor(private prisma: PrismaService) {}
+
+    async product(
+        productWhereUniqueInput: Prisma.ProductWhereUniqueInput,
+    ): Promise<Product | null> {
+        return this.prisma.product.findUnique({
+            where: productWhereUniqueInput
+        })
+    }
+
+    async category(
+        categoryWhereUniqueInput: Prisma.CategoryWhereUniqueInput,
+    ): Promise<Category | null> {
+        return this.prisma.category.findUnique({
+            where: categoryWhereUniqueInput
+        })
+    }
+
+    async createProduct(data: Prisma.ProductCreateInput): Promise<Product> {
+        return this.prisma.product.create({
+          data,
+        });
+      }
+
+    async createCategory(data: Prisma.CategoryCreateInput): Promise<Category> {
+    return this.prisma.category.create({
+        data,
+    });
+    }
 
 
-    insertProduct(
-        category_id: number, name: string,
-        desc: string, price: number, discount: number,
-        picture: string, average_score: string, is_deleted: boolean,
-        created_at: string, updated_at: string) {
-            return category_id;
-            // TODO -- FIX THIS
-        }
 }

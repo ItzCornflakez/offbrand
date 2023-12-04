@@ -12,6 +12,16 @@
             "url_pattern": "/hello-world/hello/world"
           }
         ]
+      },
+      {
+        "endpoint": "/products",
+        "backend": [
+          {
+            "host": ["https://sandbox.api.service.nhs.uk"],
+            "url_pattern": "/hello-world/hello/world"
+          }
+        ]
       }
+
     ]
   }
