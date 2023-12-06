@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { CatalogController } from './catalog.controller';
 
 @Module({
-    controllers: [CatalogController],
+  controllers: [CatalogController],
   imports: [],
-  providers: []
+  providers: [],
 })
 export class CatalogModule {}

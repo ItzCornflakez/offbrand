@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  product-management-service:
+    image: offbrand_product-management-service:latest
+    container_name: product-management-service
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - product-management-service-db
+    networks:
+      - product-management-service-network
+
+  product-management-service-db:
+    image: mysql:8.0
+    container_name: product-management-db
+    environment:
+      MYSQL_ROOT_PASSWORD: mysecretpassword
+    ports:
+      - "3306:3306"
+    networks:
+      - product-management-service-network
+
+networks:
+  product-management-service-network:
