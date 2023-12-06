@@ -12,7 +12,11 @@ COPY . .
 # Set environment variables for development
 ENV NODE_ENV=development
 
-CMD ["npm", "run", "start:dev"]
+#RUN npx prisma generate  --schema=src/prisma/schema.prisma
+#RUN sleep 10
+RUN npx prisma migrate dev --name init --schema=src/prisma/schema.prisma
+
+CMD ["npm", "run", "start:dev" ]
 
 # Stage 2: Build for production
 FROM node:18-alpine AS production
