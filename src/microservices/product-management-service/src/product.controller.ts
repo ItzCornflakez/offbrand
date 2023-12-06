@@ -132,17 +132,17 @@ export class ProductController {
 
   // GET ENDPOINTS 
 
-  @Get('post/:id')
+  @Get('product/:id')
   async getProductById(@Param('id') id: string): Promise<ProductModel> {
     return this.productService.product({ id: Number(id) });
   }
 
-  @Get('post/:id')
+  @Get('category/:id')
   async getCategoryById(@Param('id') id: string): Promise<CategoryModel> {
     return this.productService.category({ id: Number(id) });
   }
 
-  @Get('post/:id')
+  @Get('inventory/:id')
   async getInventoryById(@Param('id') id: string): Promise<InventoryModel> {
     return this.productService.inventory({ id: Number(id) });
   }
