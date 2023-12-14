@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int           @id @default(autoincrement())
+  role        String
+  email       String
+  createdAt   DateTime      @default(dbgenerated("NOW()"))
+  updatedAt   DateTime      @default(dbgenerated("NOW()"))
+  password    Password?     
+  userDetails User_Details? 
+
+  passwordId   Int?
+  userDetailsId Int?
+
+}
+
+model User_Details {
+  id           Int    @unique
+  userId       Int    @unique // Foreign key field linking to the User model
+  user         User   @relation(fields: [userId], references: [id])
+  first_name   String
+  last_name    String
+  email        String
+  phone_number String
+  address_1    String
+  address_2    String
+  city         String
+  postal_code  String
+
+  @@index([userId], name: "user_details_user_id_idx")
+}
+
+model Password {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  hash      String
+  createdAt DateTime @default(dbgenerated("NOW()"))
+
+  // Define a foreign key relationship to the User table
+  user User @relation(fields: [userId], references: [id])
+}
