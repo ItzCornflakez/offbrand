@@ -1,0 +1,36 @@
+version: "3.7"
+services:
+  database:
+    image: mysql:8.0
+    restart: always
+    container_name: database
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DATABASE_NAME}
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 3000:3000
+    depends_on:
+      - database
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+
+
+volumes:
+  mysql_data:
