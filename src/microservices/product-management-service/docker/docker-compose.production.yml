@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+  prod-database:
+    image: mysql_image:latest
+    container_name: pms_prod_db
+    restart: always
+    ports:
+      - ${DATABASE_PORT}:3036
+    env_file:
+      - /config/env/production.env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DATABASE_NAME}
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+    networks:
+      - pms_production_network
+    volumes:
+      - mysql_data:/var/lib/mysql
+    
+  prod-app:
+    image: pms_prod_app:latest
+    container_name: pms_prod_app
+    restart: always
+    ports:
+      - ${PORT}:3000
+    depends_on:
+      - prod-database
+    env_file:
+      - /config/env/production.env
+    environment:
+      NODE_ENV: production
+    networks:
+      - pms_production_network
+    
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  pms_production_network:

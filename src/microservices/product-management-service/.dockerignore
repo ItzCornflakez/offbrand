@@ -1,5 +1,8 @@
 /node_modules
 /dist
+/docker
+/scripts/deploy.sh
+/scripts/build_docker_images.sh
 Dockerfile
 .dockerignore
 *.log
