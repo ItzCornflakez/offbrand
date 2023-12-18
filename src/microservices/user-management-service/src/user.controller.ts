@@ -7,6 +7,7 @@ import {
 } from '@prisma/client';
 import {hashPassword} from './utils/password.utils'
 
+
 @Controller()
 export class UserController {
   constructor(
@@ -18,15 +19,10 @@ export class UserController {
   async createUser(
     @Body() userData: {
       role: string;
-      email: string;
-      password: string;
     },
   ): Promise<UserModel> {
-    const hashedPassword = await hashPassword(userData.password);
     const user = await this.userService.createUser({
       role: userData.role,
-      email: userData.email,
-      password: { create: { hash: hashedPassword } },
     });
 
     return user;
@@ -34,30 +30,31 @@ export class UserController {
 
   @Post('user/:id/details')
   async createUserDetails(
-    @Param('id') id: string,
     @Body() userDetailsData: {
+      user: { connect: { id: number } };
       first_name: string;
       last_name: string;
-      email: String;
-      phone_number: String;
-      address_1: String;
-      address_2 : String;
-      city: String;
-      postal_code: String;
+      email: string;
+      phone_number: string;
+      address_1: string;
+      address_2 : string;
+      city: string;
+      postal_code: string;
     },
   ): Promise<UserDetailsModel> {
-    return this.userService.createUserDetails(Number(id), userDetailsData);
+    return this.userService.createUserDetails(userDetailsData);
   }
 
   @Post('user/:id/password')
   async createPassword(
-    @Param('id') id: string,
     @Body() passwordData: {
-      password: string;
+      user: { connect: { id: number } };
+      hash: string;
     },
   ): Promise<PasswordModel> {
-    const hashedPassword = await hashPassword(passwordData.password);
-    return this.userService.createPassword(Number(id), { hash: hashedPassword });
+    const hashedPassword = await hashPassword(passwordData.hash);
+    passwordData.hash = hashedPassword
+    return this.userService.createPassword(passwordData);
   }
 
   @Put('user/:id')
@@ -65,11 +62,14 @@ export class UserController {
     @Param('id') id: string,
     @Body() userData: {
       role?: string;
-      email?: string;
-      password?: string;
     },
   ): Promise<UserModel> {
-    return this.userService.updateUser(Number(id), userData);
+    return this.userService.updateUser({
+      where: { id: Number(id) },
+      data: {
+      role: userData.role,
+      }
+    });
   }
 
   @Put('user/:id/details')
@@ -78,10 +78,27 @@ export class UserController {
     @Body() userDetailsData: {
       first_name?: string;
       last_name?: string;
-      // Add other details fields here
+      email?: string;
+      phone_number?: string;
+      address_1?: string;
+      address_2?: string;
+      city?: string;
+      postal_code?: string;
     },
   ): Promise<UserDetailsModel> {
-    return this.userService.updateUserDetails(Number(id), userDetailsData);
+    return this.userService.updateUserDetails({
+      where: { id: Number(id) },
+      data: {
+        first_name: userDetailsData.first_name,
+        last_name: userDetailsData.last_name,
+        email: userDetailsData.email,
+        phone_number: userDetailsData.phone_number,
+        address_1: userDetailsData.address_1,
+        address_2: userDetailsData.address_2,
+        city: userDetailsData.city,
+        postal_code: userDetailsData.postal_code,
+      }
+    });
   }
 
   @Put('user/:id/password')
@@ -92,7 +109,12 @@ export class UserController {
     },
   ): Promise<PasswordModel> {
     const hashedPassword = await hashPassword(passwordData.password);
-    return this.userService.updatePassword(Number(id), { hash: hashedPassword });
+    return this.userService.updatePassword({
+      where: { id: Number(id) },
+      data: {
+        hash: hashedPassword
+      }
+    });
   }
 
   @Delete('user/:id')

@@ -13,19 +13,15 @@ datasource db {
 model User {
   id          Int           @id @default(autoincrement())
   role        String
-  email       String
   createdAt   DateTime      @default(dbgenerated("NOW()"))
   updatedAt   DateTime      @default(dbgenerated("NOW()"))
   password    Password?     
   userDetails User_Details? 
 
-  passwordId   Int?
-  userDetailsId Int?
-
 }
 
 model User_Details {
-  id           Int    @unique
+  id           Int    @id @default(autoincrement())
   userId       Int    @unique // Foreign key field linking to the User model
   user         User   @relation(fields: [userId], references: [id])
   first_name   String
@@ -37,15 +33,13 @@ model User_Details {
   city         String
   postal_code  String
 
-  @@index([userId], name: "user_details_user_id_idx")
 }
 
 model Password {
   id        Int      @id @default(autoincrement())
   userId    Int      @unique
+  user User @relation(fields: [userId], references: [id])
   hash      String
   createdAt DateTime @default(dbgenerated("NOW()"))
-
-  // Define a foreign key relationship to the User table
-  user User @relation(fields: [userId], references: [id])
+  
 }
