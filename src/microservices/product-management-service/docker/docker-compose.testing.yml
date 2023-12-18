@@ -5,7 +5,7 @@ services:
     container_name: pms_test_db
     restart: always
     ports:
-      - ${DATABASE_PORT}:3036
+      - ${DATABASE_PORT}:${DATABASE_PORT}
     env_file:
       - .env
     environment:
