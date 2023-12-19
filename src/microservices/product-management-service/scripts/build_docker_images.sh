@@ -17,26 +17,6 @@ error() {
     exit 1
 }
 
-build_app_dev_image(){
-    echo "------------------- Building the Docker image for the app in development mode -------------------"
-    
-    cd ../docker/app || error "Failed to change directory to ../docker/app"
-
-    #Move the Dockerfile to the source directory
-    cp Dockerfile ../../ || error "Failed to copy the app Dockerfile to the root directory"
-    cd ../../ || error "Failed to change directory to the root directory"
-    
-    log "Building the app image with target development"
-    docker build . -t "pms_dev_app" --target development || error "Failed to build the development app image"
-
-    rm Dockerfile || error "Failed to remove the app Dockerfile from the root directory"
-
-    cd scripts/
-
-    echo "------------------- Done building the Docker image for the app in development mode -------------------"
-    echo ""
-}
-
 build_app_prod_image(){
     echo "------------------- Building the Docker image for the app in production mode -------------------"
     
@@ -47,7 +27,7 @@ build_app_prod_image(){
     cd ../../ || error "Failed to change directory to the root directory"
     
     log "Building the app image with target production"
-    docker build . -t "pms_prod_app" --target production || error "Failed to build the production app image"
+    docker build . -t "pms_prod_app" || error "Failed to build the production app image"
 
     rm Dockerfile || error "Failed to remove the app Dockerfile from the root directory"
 

@@ -23,7 +23,7 @@ services:
     container_name: pms_prod_app
     restart: always
     ports:
-      - ${PORT}:${PORT}
+      - ${PORT}:3000
     depends_on:
       - prod-database
     env_file:
