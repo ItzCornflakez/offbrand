@@ -2,7 +2,7 @@ version: "3.8"
 services:
   test-database:
     image: mysql_image:latest
-    container_name: ${DB_CONTAINER_NAME}
+    container_name: ${DATABASE_CONTAINER_NAME}
     restart: always
     ports:
       - ${DATABASE_PORT}:3306

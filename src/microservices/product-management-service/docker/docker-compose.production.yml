@@ -2,7 +2,7 @@ version: "3.8"
 services:
   pms-production-database:
     image: mysql_image:latest
-    container_name: ${DB_CONTAINER_NAME}
+    container_name: ${DATABASE_CONTAINER_NAME}
     restart: always
     ports:
       - ${DATABASE_PORT}:3306
@@ -21,16 +21,14 @@ services:
   pms-production-app:
     image: pms_prod_app:latest
     container_name: ${APP_CONTAINER_NAME}
-    restart: always
+    restart: no
     entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${DATABASE_CONN_RETRY_DELAY:- 2}; done"]
     ports:
-      - ${PORT}:3000
+      - ${APP_PORT}:3000
     depends_on:
-      - pms-prod-database
+      - pms-production-database
     env_file:
       - .env
-    environment:
-      NODE_ENV: prod
     networks:
       - pms_production_network
     
