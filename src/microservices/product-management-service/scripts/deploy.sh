@@ -28,12 +28,10 @@ deploy_prod_locally() {
 
     log "Done building the docker images"
 
-    #Copy the envrionment file
+    #Copy the envrionment file to the docker container so that the app and the database get access to it
 
     cd ../config/env
-
     cp .env.production ../../docker/.env
-
     cd ../../docker
 
     docker-compose -f docker-compose.production.yml up -d
@@ -48,11 +46,54 @@ deploy_prod_locally() {
     cd ../scripts/
 }
 
+deploy_test_locally(){
+    echo "------------------- Starting P-M-S test database -------------------"
+
+    log "Building the MySql image"
+
+    build_db_image || error "Could not build the database image"
+
+    log "Done building the database image"
+
+    #Copy the envrionment file
+
+    cd ../config/env
+    cp .env.test ../../docker/.env
+    cp .env.test ../../.env
+    cd ../../docker
+
+    docker-compose -f docker-compose.testing.yml up -d
+
+    log "Running containers:"
+    docker ps
+    echo ""
+
+    cd ..
+
+    #Wait for the database container to be ready and start the end 2 end test 
+    log "Waiting for the database container to be ready..."
+    while ! npm run test:e2e; do
+        log "The database is not ready yet! Retrying end-to-end tests after a delay..."
+        sleep 2
+    done
+    
+    rm .env
+
+    cd docker/
+
+    #Delete the running test database container
+    docker-compose -f docker-compose.testing.yml down -v
+
+    rm .env
+
+    cd ../scripts/
+}
+
 if [ $# -eq 0 ]; then
     deploy_prod_locally
 
 elif [ "$1" == "test" ]; then
-    deploy_test_db_locally
+    deploy_test_locally
 
 elif [ "$1" == "prod" ]; then
     deploy_prod_locally

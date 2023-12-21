@@ -20,4 +20,3 @@ RUN npx prisma generate
 #Build the project
 RUN npm run build
 
-CMD ["./scripts/wait-for-it.sh", "pms_prod_db:3036", "--", "bash", "-c", "npm run start:migrate:prod"]
