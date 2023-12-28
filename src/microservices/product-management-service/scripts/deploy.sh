@@ -44,10 +44,12 @@ deploy_prod_locally() {
     echo ""
 
     cd ../scripts/
+
+    echo "------------------- Done deploying P-M-S_service locally in production mode -------------------"
 }
 
 deploy_test_locally(){
-    echo "------------------- Starting P-M-S test database -------------------"
+    echo "------------------- Running tests -------------------"
 
     log "Building the MySql image"
 
@@ -87,6 +89,8 @@ deploy_test_locally(){
     rm .env
 
     cd ../scripts/
+
+    echo "------------------- Done running tests -------------------"
 }
 
 if [ $# -eq 0 ]; then
