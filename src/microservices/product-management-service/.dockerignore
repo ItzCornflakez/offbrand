@@ -1,0 +1,7 @@
+/node_modules
+/docker
+/scripts/deploy.sh
+/scripts/build_docker_images.sh
+Dockerfile
+.dockerignore
+*.log
