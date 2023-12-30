@@ -10,6 +10,7 @@ import {
   validateTestEnvFile,
   validateProductionEnvFile,
 } from '../config/environment.validation';
+import { PrismaModule } from './prisma/prisma.module';
 
 //Validate the env file
 let validateFunction;
@@ -36,6 +37,7 @@ switch (process.env.NODE_ENV) {
     InventoryModule,
     categoryModule,
     DiscountModule,
+    PrismaModule,
   ],
 })
 export class AppModule {}

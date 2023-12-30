@@ -48,7 +48,7 @@ echo ""
 cd ..
 
 log "Waiting for the database container to be ready..."
-while ! npx prisma migrate dev --name ${migration_name}; do
+while ! npx prisma migrate dev --name ${migration_name} --force; do
     log "The database is not ready yet! Retrying schema migrations after a delay..."
     sleep 2
 done

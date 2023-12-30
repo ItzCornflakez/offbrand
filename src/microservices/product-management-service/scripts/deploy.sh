@@ -103,6 +103,6 @@ elif [ "$1" == "prod" ]; then
     deploy_prod_locally
 
 else
-    error "Add 'prod' flag to deploy locally in production mode or test to deploy the test database (the app is not dockerized)" 
+    error "Add 'prod' flag to deploy locally in production mode or 'test' to run the e2e tests (the app is not dockerized here)" 
 
 fi
