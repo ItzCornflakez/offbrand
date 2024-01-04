@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class DefaultErrorResponseDto {
   @IsString()
@@ -13,6 +13,4 @@ export class DefaultErrorResponseDto {
   @IsNotEmpty()
   statusText: string;
 
-  @IsOptional()
-  errors?: any;
 }

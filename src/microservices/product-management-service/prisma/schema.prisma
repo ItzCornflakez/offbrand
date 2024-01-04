@@ -11,49 +11,34 @@ datasource db {
 }
 
 model Category {
-  id         Int       @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
 
-  name       String    @unique
-  desc       String
+  name             String    @unique
+  desc             String
 
-  is_deleted Boolean   @default(false)
-  created_at DateTime  @default(now())
-  last_updated_at DateTime  @default(now())
+  is_deleted       Boolean   @default(false)
+  created_at       DateTime  @default(now())
+  last_updated_at  DateTime  @default(now())
 
-  products   Product[]
+  products         Product[]
   
   @@map("product_category")
 }
 
-model Inventory {
-  id         Int      @id @default(autoincrement())
-
-  quantity   Int
-  color      String?
-
-  is_deleted Boolean  @default(false)
-  created_at DateTime @default(now())
-  last_updated_at DateTime @default(now())
-
-  products Product[] 
-
-  @@map("product_inventory")
-}
-
 model Discount{
-  id         Int      @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
 
-  name String?
-  desc String?
+  name             String
+  desc             String
   discount_percent Float
   
-  is_active Boolean @default(false)
-  start_date DateTime?
-  end_date   DateTime?
+  is_active        Boolean   @default(false)
+  start_date       DateTime?
+  end_date         DateTime?
 
-  is_deleted Boolean   @default(false)
-  created_at DateTime  @default(now())
-  last_updated_at DateTime  @default(now())
+  is_deleted       Boolean   @default(false)
+  created_at       DateTime  @default(now())
+  last_updated_at  DateTime  @default(now())
 
   products Product[] 
 
@@ -62,23 +47,41 @@ model Discount{
 
 
 model Product {
-  id            Int         @id @default(autoincrement())
+  id               Int        @id @default(autoincrement())
   
-  category      Category    @relation(fields: [category_id], references: [id])
-  category_id   Int
-  inventory     Inventory @relation(fields: [inventory_id], references: [id])
-  inventory_id  Int 
-  discount      Discount? @relation(fields: [discount_id], references: [id])
-  discount_id   Int? 
+  category         Category   @relation(fields: [category_id], references: [id])
+  category_id      Int
+  discount         Discount?  @relation(fields: [discount_id], references: [id])
+  discount_id      Int? 
 
-  name          String
-  desc          String
-  price         Float
-  picture       String
+  name             String
+  desc             String
+  price            Float
+  picture          String?
   
-  is_deleted    Boolean     @default(false)
-  created_at    DateTime    @default(now())
-  last_updated_at    DateTime    @default(now())
+  is_deleted       Boolean    @default(false)
+  created_at       DateTime   @default(now())
+  last_updated_at  DateTime   @default(now())
+
+  inventories      Inventory[]
 
   @@map("product")
+}
+
+model Inventory {
+  id               Int        @id @default(autoincrement())
+  
+  quantity         Int
+  color            String?
+
+  is_deleted       Boolean    @default(false)
+  created_at       DateTime   @default(now())
+  last_updated_at  DateTime   @default(now())
+
+  productId        Int        
+  product          Product    @relation(fields: [productId], references: [id])
+
+  @@unique([productId, color])
+
+  @@map("product_inventory")
 }

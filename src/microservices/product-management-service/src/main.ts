@@ -1,9 +1,10 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { HttpStatus, ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/exception-filters/httpException.filter';
-import { PrismaClientExceptionFilter } from 'nestjs-prisma';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,21 +12,28 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       transform: true,
-      disableErrorMessages: true,
     }),
   );
-  const { httpAdapter } = app.get(HttpAdapterHost);
+  
   app.useGlobalFilters(
-    new HttpExceptionFilter(),
-    new PrismaClientExceptionFilter(httpAdapter, {
-      // Prisma Error Code: HTTP Status Response
-      P2000: HttpStatus.BAD_REQUEST,
-      P2002: HttpStatus.CONFLICT,
-      P2025: HttpStatus.NOT_FOUND,
-    }),
+    new HttpExceptionFilter(new Logger()),
   );
   const configService = app.get(ConfigService);
   const port = configService.get<number>('APP_PORT');
+  app.enableVersioning({
+    type: VersioningType.URI,
+  });
+
+  // Swagger Options
+  const options = new DocumentBuilder()
+    .addBearerAuth()
+    .setTitle('Offbrand - Product-Management-Service API')
+    .setDescription('Endpoints for the offbrand product management service')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup(`/docs`, app, document);
+
   await app.listen(port);
 }
 bootstrap();
