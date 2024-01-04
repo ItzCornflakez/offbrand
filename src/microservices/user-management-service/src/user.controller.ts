@@ -5,6 +5,7 @@ import {
   User_Details as UserDetailsModel,
   Password as PasswordModel,
 } from '@prisma/client';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import {hashPassword} from './utils/password.utils'
 
 
@@ -15,46 +16,53 @@ export class UserController {
 
   // CREATE ENDPOINTS
 
-  @Post('user')
+  @Post('createUser')
   async createUser(
-    @Body() userData: {
-      role: string;
+    @Body() requestData: {
+      userData: { role: string },
+      userDetailsData: {
+        first_name: string;
+        last_name: string;
+        email: string;
+        phone_number: string;
+        address_1: string;
+        address_2: string;
+        city: string;
+        postal_code: string;
+      },
+      passwordData: { hash: string },
     },
-  ): Promise<UserModel> {
-    const user = await this.userService.createUser({
-      role: userData.role,
-    });
+  ): Promise<void> {
+    try {
+      var userData = requestData.userData;
+      var userDetailsData = requestData.userDetailsData;
+      var passwordData = requestData.passwordData;
+      console.log('Received data:', userData, userDetailsData, passwordData);
+      console.log('Received Userdata:', userData);
+      console.log('Received UserDetailsData:', userDetailsData);
+      console.log('Received passwordData:', passwordData);
+      // Create the user and get the generated id
+      const user = await this.userService.createUser({
+        role: userData.role,
+      });
+      console.log('User Object:', user);
 
-    return user;
-  }
+      // Create user details using the generated user id
+      await this.userService.createUserDetails({
+        ...userDetailsData,
+        user: { connect: { id: user.id } },
+      });
 
-  @Post('user/:id/details')
-  async createUserDetails(
-    @Body() userDetailsData: {
-      user: { connect: { id: number } };
-      first_name: string;
-      last_name: string;
-      email: string;
-      phone_number: string;
-      address_1: string;
-      address_2 : string;
-      city: string;
-      postal_code: string;
-    },
-  ): Promise<UserDetailsModel> {
-    return this.userService.createUserDetails(userDetailsData);
-  }
-
-  @Post('user/:id/password')
-  async createPassword(
-    @Body() passwordData: {
-      user: { connect: { id: number } };
-      hash: string;
-    },
-  ): Promise<PasswordModel> {
-    const hashedPassword = await hashPassword(passwordData.hash);
-    passwordData.hash = hashedPassword
-    return this.userService.createPassword(passwordData);
+      // Hash the password and create password using the generated user id
+      const hashedPassword = await hashPassword(passwordData.hash);
+      await this.userService.createPassword({
+        user: { connect: { id: user.id } },
+        hash: hashedPassword,
+      });
+    } catch (error) {
+      console.error(error);
+      throw new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Put('user/:id')
@@ -119,17 +127,12 @@ export class UserController {
 
   @Delete('user/:id')
   async deleteUser(@Param('id') id: string): Promise<void> {
-    await this.userService.deleteUser({ id: Number(id) });
-  }
-
-  @Delete('user/:id/details')
-  async deleteUserDetails(@Param('id') id: string): Promise<void> {
     await this.userService.deleteUserDetails({ id: Number(id) });
-  }
 
-  @Delete('user/:id/password')
-  async deletePassword(@Param('id') id: string): Promise<void> {
     await this.userService.deletePassword({ id: Number(id) });
+
+    await this.userService.deleteUser({ id: Number(id) });
+
   }
 
 

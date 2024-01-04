@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE `password` MODIFY `createdAt` DATETIME(3) NOT NULL DEFAULT NOW();
+
+-- AlterTable
+ALTER TABLE `user` MODIFY `createdAt` DATETIME(3) NOT NULL DEFAULT NOW(),
+    MODIFY `updatedAt` DATETIME(3) NOT NULL DEFAULT NOW();
