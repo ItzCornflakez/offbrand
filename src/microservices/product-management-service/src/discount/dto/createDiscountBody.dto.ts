@@ -1,34 +1,41 @@
-import { Transform } from "class-transformer";
-import { IsBoolean, IsISO8601, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
-import { toBoolean } from "src/common/utils/cast.helpers";
+import { Transform } from 'class-transformer';
+import {
+  IsBoolean,
+  IsISO8601,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
+import { toBoolean } from 'src/common/utils/cast.helpers';
 
+export class CreateNewDiscountDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
-export class CreateNewDiscountDto{
-    @IsString()
-    @IsNotEmpty()
-    name: string;
-  
-    @IsString()
-    @IsNotEmpty()
-    desc: string;
-    
-    @IsNumber()
-    @IsNotEmpty()
-    @Min(0)
-    @Max(1)
-    discount_percent: number
+  @IsString()
+  @IsNotEmpty()
+  desc: string;
 
-    @Transform(({ value }) => toBoolean(value))
-    @IsBoolean()
-    @IsOptional()
-    is_active?: boolean;
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(0)
+  @Max(1)
+  discount_percent: number;
 
-    @IsISO8601()
-    @IsOptional()
-    start_date?: string;
+  @Transform(({ value }) => toBoolean(value))
+  @IsBoolean()
+  @IsOptional()
+  is_active?: boolean;
 
-    @IsISO8601()
-    @IsOptional()
-    end_date?: string;
+  @IsISO8601()
+  @IsOptional()
+  start_date?: string;
 
+  @IsISO8601()
+  @IsOptional()
+  end_date?: string;
 }

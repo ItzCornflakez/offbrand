@@ -5,7 +5,6 @@ import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/exception-filters/httpException.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
@@ -14,10 +13,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  
-  app.useGlobalFilters(
-    new HttpExceptionFilter(new Logger()),
-  );
+
+  app.useGlobalFilters(new HttpExceptionFilter(new Logger()));
   const configService = app.get(ConfigService);
   const port = configService.get<number>('APP_PORT');
   app.enableVersioning({

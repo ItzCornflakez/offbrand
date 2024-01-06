@@ -2,7 +2,6 @@ import { Transform, Type } from 'class-transformer';
 import { IsBoolean, IsNumber, IsOptional, Min } from 'class-validator';
 import { toBoolean } from '../../common/utils/cast.helpers';
 
-
 export class GetAllDiscountsQueryParamsDto {
   @Transform(({ value }) => toBoolean(value))
   @IsBoolean()
@@ -22,8 +21,7 @@ export class GetAllDiscountsQueryParamsDto {
   limit?: number;
 }
 
-
-export class GetDiscountsQueryParamsDto{
+export class GetDiscountsQueryParamsDto {
   @Type(() => Number)
   @IsNumber()
   @IsOptional()

@@ -14,6 +14,9 @@ RUN apk --no-cache add bash
 #Copy NestJS project to docker container
 COPY . .
 
+# Install Prisma client
+RUN npm install @prisma/client
+
 #Generate prisma file
 RUN npx prisma generate
 

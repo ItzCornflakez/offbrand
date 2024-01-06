@@ -1,7 +1,16 @@
-import { IsNotEmpty, IsString, IsNumber, IsArray, ArrayMinSize, ValidateNested, IsOptional } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsNumber,
+  IsArray,
+  ArrayMinSize,
+  ValidateNested,
+  IsOptional,
+  IsPositive,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
-class CreateInventoryBodyDto {
+export class CreateInventoryBodyDto {
   @IsNotEmpty()
   @IsString()
   color: string;
@@ -22,13 +31,14 @@ export class CreateProductBodyDto {
 
   @IsOptional()
   @IsNumber()
-  discount_id: number;
+  discount_id?: number;
 
   @IsString()
   @IsNotEmpty()
   desc: string;
 
   @IsNotEmpty()
+  @IsPositive()
   @IsNumber()
   price: number;
 

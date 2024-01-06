@@ -78,10 +78,10 @@ model Inventory {
   created_at       DateTime   @default(now())
   last_updated_at  DateTime   @default(now())
 
-  productId        Int        
-  product          Product    @relation(fields: [productId], references: [id])
+  product_id        Int        
+  product          Product    @relation(fields: [product_id], references: [id])
 
-  @@unique([productId, color])
+  @@unique([product_id, color])
 
   @@map("product_inventory")
 }

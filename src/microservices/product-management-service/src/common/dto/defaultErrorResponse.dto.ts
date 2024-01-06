@@ -12,5 +12,4 @@ export class DefaultErrorResponseDto {
   @IsString()
   @IsNotEmpty()
   statusText: string;
-
 }

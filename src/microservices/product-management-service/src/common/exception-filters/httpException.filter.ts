@@ -10,7 +10,7 @@ import { DefaultErrorResponseDto } from '../dto/defaultErrorResponse.dto';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  constructor(private logger: Logger){}
+  constructor(private logger: Logger) {}
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
@@ -20,20 +20,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
     let errResponse: DefaultErrorResponseDto;
     let httpStatus: number;
     let errDetailmessage: string;
-    if(exception instanceof BadRequestException){
-      if(Array.isArray(exceptionResponse['message']) ){
+    if (exception instanceof BadRequestException) {
+      if (Array.isArray(exceptionResponse['message'])) {
         errDetailmessage = exceptionResponse['message'].join(', ');
-      }else{
+      } else {
         errDetailmessage = exceptionResponse['message'];
       }
 
-      httpStatus = status
+      httpStatus = status;
       errResponse = {
         status: 'Error',
         statusCode: httpStatus,
         statusText: errDetailmessage,
       };
-    }else {
+    } else {
       httpStatus = status;
       errDetailmessage = exception.message;
       errResponse = {

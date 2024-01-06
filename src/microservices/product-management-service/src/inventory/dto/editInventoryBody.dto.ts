@@ -1,13 +1,12 @@
-import { IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
+import { IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 
-export class EditInventoryBodyDto{
-    
-    @IsOptional()
-    @IsNumber()
-    @IsPositive()
-    quantity: number;
+export class EditInventoryBodyDto {
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  quantity?: number;
 
-    @IsOptional()
-    @IsString()
-    color: string;
+  @IsOptional()
+  @IsString()
+  color?: string;
 }

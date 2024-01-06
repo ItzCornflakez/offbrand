@@ -76,8 +76,6 @@ describe('App e2e', () => {
           .withBody(categoryTestDto)
           .expectStatus(201);
       });
-
-      
     });
   });
 });
