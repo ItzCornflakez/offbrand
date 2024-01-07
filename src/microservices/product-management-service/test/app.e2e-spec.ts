@@ -48,7 +48,7 @@ describe('App e2e', () => {
       it('Should return bad request if no name is provided', async () => {
         const response = await pactum
           .spec()
-          .post('/category')
+          .post('/categories')
           .withBody({
             desc: categoryTestDto.desc,
           })
@@ -57,7 +57,7 @@ describe('App e2e', () => {
       it('Should return bad request if no desc is provided', async () => {
         const response = await pactum
           .spec()
-          .post('/category')
+          .post('/categories')
           .withBody({
             name: categoryTestDto.name,
           })
@@ -66,7 +66,7 @@ describe('App e2e', () => {
       it('Should return bad request if no request body is provided', async () => {
         const response = await pactum
           .spec()
-          .post('/category')
+          .post('/categories')
           .expectStatus(400);
       });
       it('Should create a new category', () => {

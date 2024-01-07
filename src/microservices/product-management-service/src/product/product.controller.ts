@@ -47,7 +47,7 @@ export class ProductController {
     return response;
   }
 
-  @Post()
+  @Post(':id/createNewInventory')
   @Version('1')
   async addNewInventoryToProductById(
     @Param('id', ParseIntPipe) productId: number,
@@ -91,7 +91,24 @@ export class ProductController {
     return response;
   }
 
-  @Get(':id/deleted')
+  @Get(':id')
+  @Version('1')
+  async getProductById(
+    @Param('id', ParseIntPipe) productId: number,
+  ): Promise<DefaultResponseDto> {
+    const product = await this.productService.getProductById(productId);
+
+    const response: DefaultResponseDto = {
+      status: 'Success',
+      statusCode: HttpStatus.OK,
+      statusText: `Product with ID: '${productId}' retrived successfully.`,
+      data: product,
+    };
+
+    return response;
+  }
+
+  @Get('/deleted')
   @Version('1')
   async getAllDeletedProducts(
     @Query() getProductsQueryParamsDto: GetProductsQueryParamsDto,
@@ -109,23 +126,6 @@ export class ProductController {
         discounts: products,
         totalEntries: totalEntries,
       },
-    };
-
-    return response;
-  }
-
-  @Get(':id')
-  @Version('1')
-  async getProductById(
-    @Param('id', ParseIntPipe) productId: number,
-  ): Promise<DefaultResponseDto> {
-    const product = await this.productService.getProductById(productId);
-
-    const response: DefaultResponseDto = {
-      status: 'Success',
-      statusCode: HttpStatus.OK,
-      statusText: `Product with ID: '${productId}' retrived successfully.`,
-      data: product,
     };
 
     return response;
@@ -215,6 +215,41 @@ export class ProductController {
       statusCode: HttpStatus.OK,
       statusText: `Product: '${productId}' was updated successfully.`,
       data: updatedProduct,
+    };
+
+    return response;
+  }
+
+  @Patch(':id/addToCategory/:categoryId')
+  @Version('1')
+  async addProductToCategoryById(
+    @Param('id', ParseIntPipe) productId: number,
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+  ): Promise<DefaultResponseDto>{
+    const product = await this.productService.addProductToCategoryById(productId, categoryId);
+
+    const response: DefaultResponseDto = {
+      status: 'Success',
+      statusCode: HttpStatus.OK,
+      statusText: `Product: '${productId}' added to category: '${categoryId}' successfully.`,
+      data: product,
+    };
+
+    return response;
+  }
+
+  @Patch(':id/removeFromCategoy/:categoyId')
+  @Version('1')
+  async removeProductToCategoryById(
+    @Param('id', ParseIntPipe) productId: number,
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+  ): Promise<DefaultResponseDto>{
+    await this.productService.removeProductFromCategoryById(productId, categoryId);
+
+    const response: DefaultResponseDto = {
+      status: 'Success',
+      statusCode: HttpStatus.OK,
+      statusText: `Product: '${productId}' removed from category: '${categoryId}' successfully.`,
     };
 
     return response;

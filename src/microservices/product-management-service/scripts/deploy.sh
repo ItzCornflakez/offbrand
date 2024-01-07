@@ -75,7 +75,7 @@ deploy_test_locally(){
     #Wait for the database container to be ready and start the end 2 end test 
     log "Waiting for the database container to be ready..."
     while ! npm run test:e2e; do
-        log "The database is not ready yet! Retrying end-to-end tests after a delay..."
+        log "Retrying end-to-end tests after a delay..."
         sleep 2
     done
     

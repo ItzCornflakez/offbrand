@@ -15,7 +15,7 @@ import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/createCategoryBody.dto';
 import { DefaultResponseDto } from 'src/common/dto/defaultResponse.dto';
 import { EditCategoryDto } from './dto/editCategoryBody.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiAcceptedResponse, ApiOkResponse, ApiOperation, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import {
   GetAllCategoriesQueryParamsDto,
   GetAllDeletedCategoriesQueryParamsDto,
@@ -28,6 +28,7 @@ export class CategoryController {
 
   @Post()
   @Version('1')
+  @ApiOperation({ summary: 'Create a category' })
   async createCategory(
     @Body() createCategoryDto: CreateCategoryDto,
   ): Promise<DefaultResponseDto> {
@@ -46,6 +47,10 @@ export class CategoryController {
 
   @Get()
   @Version('1')
+  @ApiOperation({ summary: 'Get all categories' })
+  @ApiOkResponse({
+    description: 'All categories retrieved successfully.',
+  })
   async getAllCategories(
     @Query() allCategoriesQueryParamsDto: GetAllCategoriesQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -67,6 +72,7 @@ export class CategoryController {
 
   @Get(':id')
   @Version('1')
+  @ApiOperation({ summary: `Get a category by it's id` })
   async getCategoryById(
     @Param('id', ParseIntPipe) categoryId: number,
   ): Promise<DefaultResponseDto> {
@@ -84,6 +90,7 @@ export class CategoryController {
 
   @Get('/deleted')
   @Version('1')
+  @ApiOperation({ summary: 'Get all of the deleted categories' })
   async getAllDeletedCategories(
     @Query()
     allDeletedCategoriesQueryParamsDto: GetAllDeletedCategoriesQueryParamsDto,
@@ -108,6 +115,7 @@ export class CategoryController {
 
   @Put(':id')
   @Version('1')
+  @ApiOperation({ summary: 'Update a category' })
   async updateCategoryById(
     @Param('id', ParseIntPipe) categoryId: number,
     @Body() editCategoryDto: EditCategoryDto,
@@ -129,6 +137,7 @@ export class CategoryController {
 
   @Patch(':id/delete')
   @Version('1')
+  @ApiOperation({ summary: 'Delete a category' })
   async deleteCategoryById(
     @Param('id', ParseIntPipe) categoryId: number,
   ): Promise<DefaultResponseDto> {
@@ -145,6 +154,7 @@ export class CategoryController {
 
   @Patch(':id/restore')
   @Version('1')
+  @ApiOperation({ summary: 'Restore a deleted category' })
   async restoreDeletedCategoryById(
     @Param('id', ParseIntPipe) categoryId: number,
   ): Promise<DefaultResponseDto> {

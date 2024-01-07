@@ -14,7 +14,14 @@ export class PrismaService extends PrismaClient {
     });
   }
 
-  cleanDb() {
-    this.category.deleteMany();
+  //Clean the database (used for testing)
+  async cleanDb() {
+    await this.$transaction([
+      this.discount.deleteMany(),
+      this.inventory.deleteMany(),
+      this.productCategory.deleteMany(),
+      this.category.deleteMany(),
+      this.product.deleteMany(),
+    ]);
   }
 }

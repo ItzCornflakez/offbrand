@@ -10,78 +10,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Category {
-  id              Int       @id @default(autoincrement())
-
-  name             String    @unique
-  desc             String
-
-  is_deleted       Boolean   @default(false)
-  created_at       DateTime  @default(now())
-  last_updated_at  DateTime  @default(now())
-
-  products         Product[]
-  
-  @@map("product_category")
-}
-
-model Discount{
+model Discount {
   id               Int       @id @default(autoincrement())
-
   name             String
   desc             String
   discount_percent Float
-  
   is_active        Boolean   @default(false)
   start_date       DateTime?
   end_date         DateTime?
-
   is_deleted       Boolean   @default(false)
   created_at       DateTime  @default(now())
   last_updated_at  DateTime  @default(now())
-
-  products Product[] 
+  products         Product[]
 
   @@map("discount")
 }
 
+model Inventory {
+  id               Int        @id @default(autoincrement())
+  quantity         Int
+  color            String?
+  is_deleted       Boolean    @default(false)
+  created_at       DateTime   @default(now())
+  last_updated_at  DateTime   @default(now())
+  product_id       Int
+  product          Product    @relation(fields: [product_id], references: [id])
+
+  @@unique([product_id, color])
+  @@map("inventory")
+}
 
 model Product {
   id               Int        @id @default(autoincrement())
-  
-  category         Category   @relation(fields: [category_id], references: [id])
-  category_id      Int
   discount         Discount?  @relation(fields: [discount_id], references: [id])
-  discount_id      Int? 
-
+  discount_id      Int?
   name             String
   desc             String
   price            Float
   picture          String?
-  
   is_deleted       Boolean    @default(false)
   created_at       DateTime   @default(now())
   last_updated_at  DateTime   @default(now())
-
   inventories      Inventory[]
+  categories       ProductCategory[]
 
   @@map("product")
 }
 
-model Inventory {
-  id               Int        @id @default(autoincrement())
-  
-  quantity         Int
-  color            String?
+model Category {
+  id              Int       @id @default(autoincrement())
+  name            String    @unique
+  desc            String
+  is_deleted      Boolean   @default(false)
+  created_at      DateTime  @default(now())
+  last_updated_at DateTime  @default(now())
+  products        ProductCategory[]
 
+  @@map("category")
+}
+
+model ProductCategory {
+  product          Product    @relation(fields: [product_id], references: [id])
+  product_id       Int
+  category         Category   @relation(fields: [category_id], references: [id])
+  category_id      Int
+
+  @@id([product_id, category_id])
   is_deleted       Boolean    @default(false)
   created_at       DateTime   @default(now())
   last_updated_at  DateTime   @default(now())
 
-  product_id        Int        
-  product          Product    @relation(fields: [product_id], references: [id])
-
-  @@unique([product_id, color])
-
-  @@map("product_inventory")
+  @@map("product_category")
 }

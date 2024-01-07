@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,
@@ -8,32 +9,38 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { toBoolean } from 'src/common/utils/cast.helpers';
+import { toBoolean } from '../../common/utils/cast.helpers';;
 
 export class EditDiscountDto {
+  @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  name: string;
+  name?: string;
 
+  @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  desc: string;
+  desc?: string;
 
+  @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
   @Min(0)
   @Max(1)
-  discount_percent: number;
+  discount_percent?: number;
 
+  @ApiProperty({ required: false })
   @Transform(({ value }) => toBoolean(value))
   @IsBoolean()
   @IsOptional()
   is_active?: boolean;
 
+  @ApiProperty({ required: false })
   @IsISO8601()
   @IsOptional()
   start_date?: string;
 
+  @ApiProperty({ required: false })
   @IsISO8601()
   @IsOptional()
   end_date?: string;

@@ -22,18 +22,37 @@ export class ProductService {
 
   async createNewProduct(newProductDto: CreateProductBodyDto) {
     try {
+      const categoryId = newProductDto.category_id;
+
+      const existingCategory = await this.prismaService.category.findUnique({
+        where: { id: categoryId },
+      });
+      
+      if (!existingCategory) {
+        throw new NotFoundException(`Cannot create the new product because the category with ID: ${categoryId} does not exist.`);
+      }
       const newProduct = await this.prismaService.product.create({
         data: {
           ...newProductDto,
           inventories: {
             create: newProductDto.inventories,
           },
+          categories: {
+            create:
+            {
+              category: {
+                connect: {
+                  id: newProductDto.category_id,
+                },
+              }
+            },
+          },
         },
         include: {
           inventories: true,
         },
       });
-
+      
       return newProduct;
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
@@ -229,8 +248,8 @@ export class ProductService {
 
       const products = await this.prismaService.product.findMany({
         where: show_deleted
-          ? { category_id: categoryId }
-          : { category_id: categoryId, is_deleted: false },
+          ? { categories: {some: {category_id: categoryId }} }
+          : { categories: {some: {category_id: categoryId }}, is_deleted: false },
         skip,
         take: limit === 0 ? undefined : limit,
         include: {
@@ -240,8 +259,8 @@ export class ProductService {
 
       const totalEntries = await this.prismaService.product.count({
         where: show_deleted
-          ? { category_id: categoryId }
-          : { category_id: categoryId, is_deleted: false },
+        ? { categories: {some: {category_id: categoryId }} }
+        : { categories: {some: {category_id: categoryId }}, is_deleted: false },
       });
 
       return { products, totalEntries };
@@ -315,7 +334,7 @@ export class ProductService {
 
       if (!product) {
         throw new NotFoundException(
-          `Cannot retrive inventories related to the product with id '${productId}' because it does not exist.`,
+          `Cannot retrive inventories related to the product with ID: '${productId}' because it does not exist.`,
         );
       }
 
@@ -342,18 +361,17 @@ export class ProductService {
     try {
       const product = await this.prismaService.product.findUnique({
         where: { id: productId },
-        include: { inventories: true },
       });
 
       if (!product) {
         throw new NotFoundException(
-          `Cannot perform the operation on the product with ID '${productId}' because it does not exist.`,
+          `Cannot perform the operation on the product with ID: '${productId}' because it does not exist.`,
         );
       }
 
       if (product.is_deleted) {
         throw new ConflictException(
-          `Cannot perform the operation on the product with ID '${productId}' because it is marked as deleted.`,
+          `Cannot perform the operation on the product with ID: '${productId}' because it is marked as deleted.`,
         );
       }
 
@@ -370,9 +388,125 @@ export class ProductService {
       return updatedProduct;
     } catch (e) {
       throw new InternalServerErrorException(
-        `Failed to update the product with id: '${productId}'. Please try again later.`,
+        `Failed to update the product with ID: '${productId}'. Please try again later.`,
         { cause: e },
       );
+    }
+  }
+
+  async addProductToCategoryById(productId: number, categoryId: number){
+    try {
+      const product = await this.prismaService.product.findUnique({
+        where: { id: productId},
+      });
+
+      if (!product) {
+        throw new NotFoundException(
+          `Cannot perform the operation on the product with ID: '${productId}' because it does not exist.`,
+        );
+      }
+
+      if (product.is_deleted) {
+        throw new ConflictException(
+          `Cannot perform the operation on the product with ID: '${productId}' because it is marked as deleted.`,
+        );
+      }
+
+      const category = await this.prismaService.category.findUnique({
+        where: { id: categoryId },
+      });
+
+      if (!category) {
+        throw new NotFoundException(
+          `Cannot perform the operation on the product with ID: '${productId}' because the catecory with ID: '${categoryId}' does not exist.`,
+        );
+      }
+
+      if (category.is_deleted) {
+        throw new ConflictException(
+          `Cannot perform the operation on the product with ID: '${productId}' because the category with ID: '${categoryId}' is marked as deleted.`,
+        );
+      }
+
+      const updatedProduct = await this.prismaService.$transaction([
+        this.prismaService.product.update({
+          where: { id: productId },
+          data: {
+          categories: {
+            create:
+            {
+              category: {
+                connect: {
+                  id: categoryId,
+                },
+              }
+            },
+          },
+        },
+        include: {
+          inventories: true,
+        }
+        }),
+      ]);
+
+      return updatedProduct;
+    } catch(e) {
+      throw new InternalServerErrorException(
+        `Failed to add the product with ID: '${productId}' to the category with ID: '${categoryId}'. Please try again later.`,
+        { cause: e },
+      );
+    }
+  }
+
+  async removeProductFromCategoryById(productId: number, categoryId: number){
+    try{
+      const product = await this.prismaService.product.findUnique({
+        where: { id: productId},
+      });
+
+      if (!product) {
+        throw new NotFoundException(
+          `Cannot perform the operation on the product with ID: '${productId}' because it does not exist.`,
+        );
+      }
+
+      if (product.is_deleted) {
+        throw new ConflictException(
+          `Cannot perform the operation on the product with ID: '${productId}' because it is marked as deleted.`,
+        );
+      }
+
+      const category = await this.prismaService.category.findUnique({
+        where: { id: categoryId },
+      });
+
+      if (!category) {
+        throw new NotFoundException(
+          `Cannot perform the operation on the product with ID: '${productId}' because the catecory with ID: '${categoryId}' does not exist.`,
+        );
+      }
+
+      const NrOfCategoriesLeft =
+        await this.prismaService.productCategory.count({
+          where: {
+            product_id: productId,
+          },
+        });
+
+      //If this is the last category associated with the product, throw an error
+      if (NrOfCategoriesLeft === 1) {
+        throw new ConflictException(
+          `Cannot remove the product with ID '${productId}' from the category with ID: '${category}', because it is the last category that this product belongs to.`,
+        );
+      } 
+
+      await this.prismaService.$transaction([
+        this.prismaService.productCategory.delete({
+          where: { product_id_category_id: { product_id: productId, category_id: categoryId } },
+        }),
+      ]);
+    } catch (e) {
+
     }
   }
 
@@ -384,13 +518,13 @@ export class ProductService {
 
       if (!product) {
         throw new NotFoundException(
-          `Cannot perform the operation on the product with ID '${productId}' because it does not exist.`,
+          `Cannot perform the operation on the product with ID: '${productId}' because it does not exist.`,
         );
       }
 
       if (product.is_deleted) {
         throw new ConflictException(
-          `Cannot perform the operation on the product with ID '${productId}' because it is marked as deleted.`,
+          `Cannot perform the operation on the product with ID: '${productId}' because it is marked as deleted.`,
         );
       }
 
@@ -400,13 +534,13 @@ export class ProductService {
 
       if (!discount) {
         throw new NotFoundException(
-          `Cannot perform the operation on the product with ID '${productId}' because the discount with ID: ${discountId} does not exist.`,
+          `Cannot perform the operation on the product with ID: '${productId}' because the discount with ID: ${discountId} does not exist.`,
         );
       }
 
       if (discount.is_deleted) {
         throw new ConflictException(
-          `Cannot perform the operation on the product with ID '${productId}' because the discount with ID: ${discountId} is marked as deleted.`,
+          `Cannot perform the operation on the product with ID: '${productId}' because the discount with ID: ${discountId} is marked as deleted.`,
         );
       }
 
@@ -435,19 +569,19 @@ export class ProductService {
 
       if (!product) {
         throw new NotFoundException(
-          `Cannot perform the operation on the product with ID '${productId}' because it does not exist.`,
+          `Cannot perform the operation on the product with ID: '${productId}' because it does not exist.`,
         );
       }
 
       if (product.is_deleted) {
         throw new ConflictException(
-          `Cannot perform the operation on the product with ID '${productId}' because it is marked as deleted.`,
+          `Cannot perform the operation on the product with ID: '${productId}' because it is marked as deleted.`,
         );
       }
 
       if (product.discount_id === null || product.discount_id === undefined) {
         throw new ConflictException(
-          `Cannot perform the operation on the product with ID '${productId}' because no discount is currently applied to the product.`,
+          `Cannot perform the operation on the product with ID: '${productId}' because no discount is currently applied to the product.`,
         );
       }
 
@@ -475,13 +609,13 @@ export class ProductService {
 
       if (!product) {
         throw new NotFoundException(
-          `Cannot perform the operation on the product with ID '${productId}' because it does not exist.`,
+          `Cannot perform the operation on the product with ID: '${productId}' because it does not exist.`,
         );
       }
 
       if (product.is_deleted) {
         throw new ConflictException(
-          `Cannot perform the operation on the inventory with ID '${productId}' because it is already marked as deleted.`,
+          `Cannot perform the operation on the inventory with ID: '${productId}' because it is already marked as deleted.`,
         );
       }
 
@@ -512,13 +646,13 @@ export class ProductService {
 
       if (!product) {
         throw new NotFoundException(
-          `Cannot perform the operation on the product with ID '${productId}' because it does not exist.`,
+          `Cannot perform the operation on the product with ID: '${productId}' because it does not exist.`,
         );
       }
 
       if (product.is_deleted) {
         throw new ConflictException(
-          `Cannot perform the operation on the inventory with ID '${productId}' because it is already marked as deleted.`,
+          `Cannot perform the operation on the inventory with ID: '${productId}' because it is already marked as deleted.`,
         );
       }
 
