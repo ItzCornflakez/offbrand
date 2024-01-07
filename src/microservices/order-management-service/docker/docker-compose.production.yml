@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  oms-production-database:
+    image: mysql_image:latest
+    container_name: ${DATABASE_CONTAINER_NAME}
+    restart: always
+    ports:
+      - ${DATABASE_PORT}:3306
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DATABASE_NAME}
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+    networks:
+      - oms_production_network
+    volumes:
+      - oms_mysql_data:/var/lib/mysql
+    
+  oms-production-app:
+    image: oms_prod_app:latest
+    container_name: ${APP_CONTAINER_NAME}
+    restart: no
+    entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${DATABASE_CONN_RETRY_DELAY:- 2}; done"]
+    ports:
+      - ${APP_PORT}:3000
+    depends_on:
+      - oms-production-database
+    env_file:
+      - .env
+    networks:
+      - oms_production_network
+    
+volumes:
+  oms_mysql_data:
+    driver: local
+
+networks:
+  oms_production_network:
