@@ -10,14 +10,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model reviews {
+model Review {
   id         Int       @id @default(autoincrement())
   user_id    Int
   product_id Int
   name       String
   score      Int 
   comment    String
-  dislikers  Int
+  dislikes   Int
   likes      Int
   created_at DateTime  @default(dbgenerated("NOW()"))
   updated_at DateTime  @default(dbgenerated("NOW()"))
