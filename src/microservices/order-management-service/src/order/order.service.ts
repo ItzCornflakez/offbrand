@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Order, User, Prisma} from '@prisma/client';
+import { Order, User, Prisma, Product} from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
@@ -42,6 +42,12 @@ export class OrderService {
         data,
       });
   }
+
+  async createProduct(data: Prisma.ProductCreateInput): Promise<Product> {
+    return this.prisma.product.create({
+      data,
+    });
+}
 
     async updateOrder(params: {
         where: Prisma.OrderWhereUniqueInput;

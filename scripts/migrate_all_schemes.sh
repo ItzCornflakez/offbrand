@@ -1,14 +1,11 @@
 #!/bin/bash
-#cd ../src/microservices/order-management-service/scripts
-
-#./deploy_rabbitmq.sh
 
 cd ../src/microservices/order-management-service/scripts
 
-./deploy.sh
+./migrate_schema.sh
 
 cd ../../product-management-service/scripts 
 
-./deploy.sh
+./migrate_schema.sh
 
 #TODO Implement the file xd

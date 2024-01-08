@@ -3,12 +3,13 @@ import { OrderDto } from 'src/common/dto';
 import { Order as OrderModel, User as UserModel} from '@prisma/client';
 import { OrderService } from './order.service';
 import { UserDto } from 'src/common/dto';
+import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
+
 
 @Controller('order')
 export class OrderController {
     constructor(
-        private readonly orderService: OrderService,
-        //private readonly rabbitMQService: RabbitMQService
+        private readonly orderService: OrderService
         ) {}
 
     // CREATE ENDPOINT
@@ -54,5 +55,13 @@ export class OrderController {
     console.log("hello")
 
     return this.orderService.createUser(dto);
+  }
+
+  @MessagePattern({cmd: 'create-product'})
+  async productCreated(@Ctx() context: RmqContext) {
+    console.log("in here 2")
+    this.orderService.createProduct({
+    })
+        
   }
 }

@@ -8,6 +8,9 @@ COPY package.json package-lock.json ./
 #Install the Project package
 RUN npm install
 
+#Install to use rabbitmq
+RUN npm install --save amqplib amqp-connection-manager
+
 # Install bash
 RUN apk --no-cache add bash
 

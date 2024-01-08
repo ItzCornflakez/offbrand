@@ -10,6 +10,7 @@ import {
   validateTestEnvFile,
   validateProductionEnvFile,
 } from '../config/environment.validation';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 //Validate the env file
 let validateFunction;
@@ -36,6 +37,9 @@ switch (process.env.NODE_ENV) {
     InventoryModule,
     categoryModule,
     DiscountModule,
+    
   ],
-})
+},
+
+)
 export class AppModule {}

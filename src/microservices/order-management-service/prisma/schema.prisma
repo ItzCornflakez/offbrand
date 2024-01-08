@@ -50,8 +50,6 @@ model OrderItem {
 model Product {
   id         Int      @id @default(autoincrement())
 
-  product_id Int
-
   ordersItems   OrderItem[]
 
   @@map("products")
@@ -59,8 +57,6 @@ model Product {
 
 model User {
   id         Int      @id @default(autoincrement())
-
-  user_id   Int
 
   orders   Order[]
 

@@ -41,9 +41,6 @@ CREATE TABLE `discount` (
 -- CreateTable
 CREATE TABLE `product` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `category_id` INTEGER NOT NULL,
-    `inventory_id` INTEGER NOT NULL,
-    `discount_id` INTEGER NULL,
     `name` VARCHAR(191) NOT NULL,
     `desc` VARCHAR(191) NOT NULL,
     `price` DOUBLE NOT NULL,
@@ -54,12 +51,3 @@ CREATE TABLE `product` (
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- AddForeignKey
-ALTER TABLE `product` ADD CONSTRAINT `product_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `product_category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `product` ADD CONSTRAINT `product_inventory_id_fkey` FOREIGN KEY (`inventory_id`) REFERENCES `product_inventory`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `product` ADD CONSTRAINT `product_discount_id_fkey` FOREIGN KEY (`discount_id`) REFERENCES `discount`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

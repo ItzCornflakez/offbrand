@@ -19,8 +19,6 @@ model Category {
   is_deleted Boolean   @default(false)
   created_at DateTime  @default(now())
   last_updated_at DateTime  @default(now())
-
-  products   Product[]
   
   @@map("product_category")
 }
@@ -34,8 +32,6 @@ model Inventory {
   is_deleted Boolean  @default(false)
   created_at DateTime @default(now())
   last_updated_at DateTime @default(now())
-
-  products Product[] 
 
   @@map("product_inventory")
 }
@@ -55,8 +51,6 @@ model Discount{
   created_at DateTime  @default(now())
   last_updated_at DateTime  @default(now())
 
-  products Product[] 
-
   @@map("discount")
 }
 
@@ -64,12 +58,6 @@ model Discount{
 model Product {
   id            Int         @id @default(autoincrement())
   
-  category      Category    @relation(fields: [category_id], references: [id])
-  category_id   Int
-  inventory     Inventory @relation(fields: [inventory_id], references: [id])
-  inventory_id  Int 
-  discount      Discount? @relation(fields: [discount_id], references: [id])
-  discount_id   Int? 
 
   name          String
   desc          String
