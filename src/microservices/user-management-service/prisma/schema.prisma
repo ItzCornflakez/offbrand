@@ -13,8 +13,8 @@ datasource db {
 model User {
   id          Int           @id @default(autoincrement())
   role        String
-  createdAt   DateTime      @default(dbgenerated("NOW()"))
-  updatedAt   DateTime      @default(dbgenerated("NOW()"))
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @default(now())
   password    Password?     
   userDetails User_Details? 
 
@@ -36,10 +36,10 @@ model User_Details {
 }
 
 model Password {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique
-  user User @relation(fields: [userId], references: [id])
-  hash      String
-  createdAt DateTime @default(dbgenerated("NOW()"))
+  id         Int      @id @default(autoincrement())
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id])
+  hash       String
+  created_at DateTime @default(now())
   
 }

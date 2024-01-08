@@ -6,7 +6,7 @@ import {
   Password as PasswordModel,
 } from '@prisma/client';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import {hashPassword} from './utils/password.utils'
+import {hashPassword} from '../utils/password.utils'
 
 
 @Controller()
