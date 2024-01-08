@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  test-database:
+  migration-database:
     image: mysql_image:latest
     container_name: ${DATABASE_CONTAINER_NAME}
     restart: always

@@ -16,7 +16,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter(new Logger()));
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('APP_PORT');
+  const port = configService.get<number>('PMS_APP_PORT');
   app.enableVersioning({
     type: VersioningType.URI,
   });
@@ -31,6 +31,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup(`/docs`, app, document);
 
+  console.log('APP listening on PORT ', port);
   await app.listen(port);
 }
 bootstrap();

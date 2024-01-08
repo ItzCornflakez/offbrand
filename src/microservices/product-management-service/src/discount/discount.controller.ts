@@ -12,7 +12,7 @@ import {
   Version,
 } from '@nestjs/common';
 import { DiscountService } from './discount.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateNewDiscountDto } from './dto/createDiscountBody.dto';
 import { DefaultResponseDto } from 'src/common/dto/defaultResponse.dto';
 import { EditDiscountDto } from './dto/editDiscountBody.dto';
@@ -28,6 +28,7 @@ export class DiscountController {
 
   @Post()
   @Version('1')
+  @ApiOperation({ summary: 'Create a discount' })
   async createNewDiscount(
     @Body() newDiscountDto: CreateNewDiscountDto,
   ): Promise<DefaultResponseDto> {
@@ -46,6 +47,7 @@ export class DiscountController {
 
   @Get()
   @Version('1')
+  @ApiOperation({ summary: 'Get all discounts' })
   async getAllDiscounts(
     @Query() getAllDiscountsQueryParamsDto: GetAllDiscountsQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -55,7 +57,7 @@ export class DiscountController {
     const response: DefaultResponseDto = {
       status: 'Success',
       statusCode: HttpStatus.OK,
-      statusText: 'Disscount(s) retrived successfully.',
+      statusText: 'Discount(s) retrived successfully.',
       data: {
         discounts: discounts,
         totalEntries: totalEntries,
@@ -65,25 +67,9 @@ export class DiscountController {
     return response;
   }
 
-  @Get(':id')
-  @Version('1')
-  async getDiscountById(
-    @Param('id', ParseIntPipe) discountId: number,
-  ): Promise<DefaultResponseDto> {
-    const discount = await this.discountService.getDiscountById(discountId);
-
-    const response: DefaultResponseDto = {
-      status: 'Success',
-      statusCode: HttpStatus.OK,
-      statusText: 'Disscount retrived successfully.',
-      data: discount,
-    };
-
-    return response;
-  }
-
   @Get('/active')
   @Version('1')
+  @ApiOperation({ summary: 'Get all active discounts' })
   async getAllActiveDiscounts(
     @Query() getDiscountQueryParamsDto: GetDiscountsQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -107,6 +93,7 @@ export class DiscountController {
 
   @Get('/inactive')
   @Version('1')
+  @ApiOperation({ summary: 'Get all inactive discounts' })
   async getAllInactiveDiscounts(
     @Query() getDiscountQueryParamsDto: GetDiscountsQueryParamsDto,
   ) {
@@ -130,6 +117,7 @@ export class DiscountController {
 
   @Get('/deleted')
   @Version('1')
+  @ApiOperation({ summary: 'Get all deleted discounts' })
   async getAllDeletedDiscounts(
     @Query() getDiscountQueryParamsDto: GetDiscountsQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -151,8 +139,27 @@ export class DiscountController {
     return response;
   }
 
+  @Get(':id')
+  @Version('1')
+  @ApiOperation({ summary: `Get a discount by it's id` })
+  async getDiscountById(
+    @Param('id', ParseIntPipe) discountId: number,
+  ): Promise<DefaultResponseDto> {
+    const discount = await this.discountService.getDiscountById(discountId);
+
+    const response: DefaultResponseDto = {
+      status: 'Success',
+      statusCode: HttpStatus.OK,
+      statusText: 'Disscount retrived successfully.',
+      data: discount,
+    };
+
+    return response;
+  }
+
   @Put(':id')
   @Version('1')
+  @ApiOperation({ summary: `Update a discounts by it's id` })
   async updateDiscountById(
     @Param('id', ParseIntPipe) discountId: number,
     @Body() editDiscountDto: EditDiscountDto,
@@ -174,6 +181,7 @@ export class DiscountController {
 
   @Patch(':id/delete')
   @Version('1')
+  @ApiOperation({ summary: `Delete a discount by it's id` })
   async deleteDiscountById(
     @Param('id', ParseIntPipe) discountId: number,
   ): Promise<DefaultResponseDto> {
@@ -190,6 +198,7 @@ export class DiscountController {
 
   @Patch(':id/restore')
   @Version('1')
+  @ApiOperation({ summary: `Restore a discount by it's id` })
   async restoreDiscountById(
     @Param('id', ParseIntPipe) discountId: number,
   ): Promise<DefaultResponseDto> {
@@ -206,6 +215,7 @@ export class DiscountController {
 
   @Patch(':id/activate')
   @Version('1')
+  @ApiOperation({ summary: `Activate a discount by it's id` })
   async activateDiscountById(
     @Param('id', ParseIntPipe) discountId: number,
   ): Promise<DefaultResponseDto> {
@@ -224,6 +234,7 @@ export class DiscountController {
 
   @Patch(':id/inactivate')
   @Version('1')
+  @ApiOperation({ summary: `Inactivate a discount by it's id` })
   async inactivateDiscountById(
     @Param('id', ParseIntPipe) discountId: number,
   ): Promise<DefaultResponseDto> {

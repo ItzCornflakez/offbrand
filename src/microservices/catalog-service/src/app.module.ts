@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
-
 import {
   validateTestEnvFile,
   validateProductionEnvFile,
 } from '../config/environment.validation';
 import { PrismaModule } from './prisma/prisma.module';
+import { ProductModule } from './product/product.module';
+import { categoryModule } from './category/category.module';
+import { DiscountModule } from './discount/discount.module';
+import { VariantModule } from './variants/variants.module';
 
 //Validate the env file
 let validateFunction;
@@ -30,6 +33,10 @@ switch (process.env.NODE_ENV) {
       validate: validateFunction,
     }), //Load configuration file
     PrismaModule,
+    ProductModule,
+    categoryModule,
+    DiscountModule,
+    VariantModule,
   ],
 })
 export class AppModule {}

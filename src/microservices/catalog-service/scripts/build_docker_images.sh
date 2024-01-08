@@ -27,7 +27,7 @@ build_app_prod_image(){
     cd ../../ || error "Failed to change directory to the root directory"
     
     log "Building the app image with target production"
-    docker build . -t "pms_prod_app" || error "Failed to build the production app image"
+    docker build . -t "catalog_prod_app" || error "Failed to build the production app image"
 
     rm Dockerfile || error "Failed to remove the app Dockerfile from the root directory"
 

@@ -41,13 +41,13 @@ export class DiscountService {
     const skip = (page - 1) * limit;
 
     try {
-      const discounts = this.prismaService.discount.findMany({
+      const discounts = await this.prismaService.discount.findMany({
         where: show_deleted ? {} : { is_deleted: false },
         skip,
         take: limit === 0 ? undefined : limit,
       });
 
-      const totalEntries = await this.prismaService.category.count({
+      const totalEntries = await this.prismaService.discount.count({
         where: show_deleted ? {} : { is_deleted: false },
       });
 
@@ -74,6 +74,10 @@ export class DiscountService {
 
       return discount;
     } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Failed to retrieve discount with id: '${discountId}'. Please try again later.`,
         { cause: e },
@@ -183,18 +187,16 @@ export class DiscountService {
         );
       }
 
-      if (discount.is_deleted) {
-        throw new ConflictException(
-          `Cannot perform the operation on the discount with ID '${discountId}' because it is marked as deleted.`,
-        );
-      }
-
       const updatedDiscount = await this.prismaService.discount.update({
         where: { id: discountId },
         data: { ...editDiscountDto, last_updated_at: new Date() },
       });
       return updatedDiscount;
     } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Something went wrong updating discount: '${discountId}', please try again later. `,
         { cause: e },
@@ -225,6 +227,10 @@ export class DiscountService {
         data: { is_deleted: true, last_updated_at: new Date() },
       });
     } catch (e) {
+      if (e instanceof NotFoundException || e instanceof ConflictException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Something went wrong deleting discount: '${discountId}', please try again later. `,
         { cause: e },
@@ -240,21 +246,25 @@ export class DiscountService {
 
       if (!discount) {
         throw new NotFoundException(
-          `Cannot perform the operation on the discount with ID '${discountId}' because it does not exist.`,
+          `Cannot perform the operation on the discount with ID: '${discountId}' because it does not exist.`,
         );
       }
 
       if (!discount.is_deleted) {
         throw new ConflictException(
-          `Cannot perform the operation on the discount with ID '${discountId}' because it is not marked as deleted.`,
+          `Cannot perform the operation on the discount with ID: '${discountId}' because it is not marked as deleted.`,
         );
       }
 
       await this.prismaService.discount.update({
         where: { id: discountId },
-        data: { is_deleted: true, last_updated_at: new Date() },
+        data: { is_deleted: false, last_updated_at: new Date() },
       });
     } catch (e) {
+      if (e instanceof NotFoundException || e instanceof ConflictException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Something went wrong restoring discount: '${discountId}', please try again later.`,
         { cause: e },
@@ -287,6 +297,10 @@ export class DiscountService {
 
       return activatedDiscount;
     } catch (e) {
+      if (e instanceof NotFoundException || e instanceof ConflictException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Something went wrong activating discount: '${discountId}', please try again later.`,
         { cause: e },
@@ -319,6 +333,10 @@ export class DiscountService {
 
       return inactivatedDiscount;
     } catch (e) {
+      if (e instanceof NotFoundException || e instanceof ConflictException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Something went wrong inactivating discount: '${discountId}', please try again later.`,
         { cause: e },

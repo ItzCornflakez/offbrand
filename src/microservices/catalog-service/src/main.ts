@@ -16,7 +16,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter(new Logger()));
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('APP_PORT');
+  const port = configService.get<number>('CATALOG_APP_PORT');
   app.enableVersioning({
     type: VersioningType.URI,
   });

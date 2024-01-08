@@ -37,6 +37,5 @@ describe('App e2e', () => {
     await app.close();
   });
 
-  describe('Category', () => {
-  });
+  describe('Category', () => {});
 });

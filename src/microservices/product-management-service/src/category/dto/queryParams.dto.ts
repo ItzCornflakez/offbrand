@@ -10,7 +10,7 @@ export class GetAllCategoriesQueryParamsDto {
   @IsOptional()
   show_deleted?: boolean;
 
-  @ApiProperty({ required: false, default: 1})
+  @ApiProperty({ required: false, default: 1 })
   @Type(() => Number)
   @IsNumber()
   @IsOptional()
@@ -30,11 +30,13 @@ export class GetAllDeletedCategoriesQueryParamsDto {
   @Type(() => Number)
   @IsNumber()
   @IsOptional()
+  @Min(1)
   page?: number;
 
   @ApiProperty({ required: false, default: 0 })
   @Type(() => Number)
   @IsNumber()
   @IsOptional()
+  @Min(0)
   limit?: number;
 }

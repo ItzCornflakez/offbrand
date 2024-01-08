@@ -11,7 +11,7 @@ import {
   Query,
   Version,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProductService } from './product.service';
 import { DefaultResponseDto } from 'src/common/dto/defaultResponse.dto';
 import {
@@ -31,6 +31,7 @@ export class ProductController {
 
   @Post()
   @Version('1')
+  @ApiOperation({ summary: `Create a product` })
   async createNewProduct(
     @Body() newProductBodyDto: CreateProductBodyDto,
   ): Promise<DefaultResponseDto> {
@@ -49,6 +50,7 @@ export class ProductController {
 
   @Post(':id/createNewInventory')
   @Version('1')
+  @ApiOperation({ summary: `Add a new inventory to a product by it's id` })
   async addNewInventoryToProductById(
     @Param('id', ParseIntPipe) productId: number,
     @Body() newInventoryBodyDto: CreateInventoryBodyDto,
@@ -71,6 +73,7 @@ export class ProductController {
 
   @Get()
   @Version('1')
+  @ApiOperation({ summary: `Get all products` })
   async getAllProducts(
     @Query() getAllProductsQueryParamsDto: GetAllProductsQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -91,25 +94,9 @@ export class ProductController {
     return response;
   }
 
-  @Get(':id')
-  @Version('1')
-  async getProductById(
-    @Param('id', ParseIntPipe) productId: number,
-  ): Promise<DefaultResponseDto> {
-    const product = await this.productService.getProductById(productId);
-
-    const response: DefaultResponseDto = {
-      status: 'Success',
-      statusCode: HttpStatus.OK,
-      statusText: `Product with ID: '${productId}' retrived successfully.`,
-      data: product,
-    };
-
-    return response;
-  }
-
   @Get('/deleted')
   @Version('1')
+  @ApiOperation({ summary: `Get all deleted products` })
   async getAllDeletedProducts(
     @Query() getProductsQueryParamsDto: GetProductsQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -133,6 +120,7 @@ export class ProductController {
 
   @Get('/categories/:categoryId')
   @Version('1')
+  @ApiOperation({ summary: `Get a product by it's id` })
   async getProductsByCategoryId(
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Query() getProductsQueryParamsDto: GetProductsQueryParamsDto,
@@ -158,6 +146,9 @@ export class ProductController {
 
   @Get('/discounts/:discountId')
   @Version('1')
+  @ApiOperation({
+    summary: `Get all products belonging to a dicount by the discount's id`,
+  })
   async getProductsByDiscountId(
     @Param('discountId', ParseIntPipe) discountId: number,
     @Query() getProductsQueryParamsDto: GetProductsQueryParamsDto,
@@ -181,8 +172,27 @@ export class ProductController {
     return response;
   }
 
+  @Get(':id')
+  @Version('1')
+  @ApiOperation({ summary: `Get a product by it's id` })
+  async getProductById(
+    @Param('id', ParseIntPipe) productId: number,
+  ): Promise<DefaultResponseDto> {
+    const product = await this.productService.getProductById(productId);
+
+    const response: DefaultResponseDto = {
+      status: 'Success',
+      statusCode: HttpStatus.OK,
+      statusText: `Product with ID: '${productId}' retrived successfully.`,
+      data: product,
+    };
+
+    return response;
+  }
+
   @Get(':id/inventories')
   @Version('1')
+  @ApiOperation({ summary: `Get all of a products inventories by it's id` })
   async getInventoriesRelatedToProduct(
     @Param('id', ParseIntPipe) productId: number,
   ): Promise<DefaultResponseDto> {
@@ -201,6 +211,7 @@ export class ProductController {
 
   @Put(':id')
   @Version('1')
+  @ApiOperation({ summary: `Update a product by it's id` })
   async updateProductById(
     @Param('id', ParseIntPipe) productId: number,
     @Body() editProductBodyDto: EditProductBodyDto,
@@ -222,11 +233,15 @@ export class ProductController {
 
   @Patch(':id/addToCategory/:categoryId')
   @Version('1')
+  @ApiOperation({ summary: `Add a product to a category by the category's id` })
   async addProductToCategoryById(
     @Param('id', ParseIntPipe) productId: number,
     @Param('categoryId', ParseIntPipe) categoryId: number,
-  ): Promise<DefaultResponseDto>{
-    const product = await this.productService.addProductToCategoryById(productId, categoryId);
+  ): Promise<DefaultResponseDto> {
+    const product = await this.productService.addProductToCategoryById(
+      productId,
+      categoryId,
+    );
 
     const response: DefaultResponseDto = {
       status: 'Success',
@@ -240,11 +255,17 @@ export class ProductController {
 
   @Patch(':id/removeFromCategoy/:categoyId')
   @Version('1')
+  @ApiOperation({
+    summary: `Remove a product to a category by the category's id`,
+  })
   async removeProductToCategoryById(
     @Param('id', ParseIntPipe) productId: number,
     @Param('categoryId', ParseIntPipe) categoryId: number,
-  ): Promise<DefaultResponseDto>{
-    await this.productService.removeProductFromCategoryById(productId, categoryId);
+  ): Promise<DefaultResponseDto> {
+    await this.productService.removeProductFromCategoryById(
+      productId,
+      categoryId,
+    );
 
     const response: DefaultResponseDto = {
       status: 'Success',
@@ -257,6 +278,7 @@ export class ProductController {
 
   @Patch(':id/applyDiscount/:discountid')
   @Version('1')
+  @ApiOperation({ summary: `Add a discount to a product by the discount's id` })
   async setDiscountOnProduct(
     @Param('id', ParseIntPipe) productId: number,
     @Param('discountId', ParseIntPipe) discountId: number,
@@ -278,6 +300,9 @@ export class ProductController {
 
   @Patch(':id/removeDiscount/:discountid')
   @Version('1')
+  @ApiOperation({
+    summary: `Remove a discount to a product by the discount's id`,
+  })
   async removeDiscountFromProductById(
     @Param('id', ParseIntPipe) productId: number,
   ): Promise<DefaultResponseDto> {
@@ -296,6 +321,7 @@ export class ProductController {
 
   @Patch(':id/delete')
   @Version('1')
+  @ApiOperation({ summary: `Delete a product by it's id` })
   async deleteProductById(
     @Param('id', ParseIntPipe) productId: number,
   ): Promise<DefaultResponseDto> {
@@ -312,6 +338,7 @@ export class ProductController {
 
   @Patch(':id/restore')
   @Version('1')
+  @ApiOperation({ summary: `Restore a product by it's id` })
   async restoreProductById(
     @Param('id', ParseIntPipe) productId: number,
   ): Promise<DefaultResponseDto> {

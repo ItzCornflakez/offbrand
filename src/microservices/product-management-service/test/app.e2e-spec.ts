@@ -31,7 +31,7 @@ describe('App e2e', () => {
     prisma = app.get(PrismaService);
     await prisma.cleanDb();
 
-    pactum.request.setBaseUrl(`http://localhost:${port}`);
+    pactum.request.setBaseUrl(`http://localhost:${port}/v1`);
   });
 
   afterAll(async () => {
@@ -72,7 +72,7 @@ describe('App e2e', () => {
       it('Should create a new category', () => {
         const response = pactum
           .spec()
-          .post('/category')
+          .post('/categories')
           .withBody(categoryTestDto)
           .expectStatus(201);
       });

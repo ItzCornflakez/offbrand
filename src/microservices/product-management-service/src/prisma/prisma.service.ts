@@ -8,20 +8,12 @@ export class PrismaService extends PrismaClient {
     super({
       datasources: {
         db: {
-          url: config.get('DATABASE_URL'),
+          url: config.get('PMS_DATABASE_URL'),
         },
       },
     });
   }
 
   //Clean the database (used for testing)
-  async cleanDb() {
-    await this.$transaction([
-      this.discount.deleteMany(),
-      this.inventory.deleteMany(),
-      this.productCategory.deleteMany(),
-      this.category.deleteMany(),
-      this.product.deleteMany(),
-    ]);
-  }
+  async cleanDb() {}
 }

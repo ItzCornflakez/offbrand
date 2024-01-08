@@ -9,7 +9,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { toBoolean } from '../../common/utils/cast.helpers';;
+import { toBoolean } from '../../common/utils/cast.helpers';
 
 export class EditDiscountDto {
   @ApiProperty({ required: false })

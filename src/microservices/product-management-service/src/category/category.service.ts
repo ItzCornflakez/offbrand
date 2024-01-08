@@ -83,14 +83,18 @@ export class CategoryService {
 
       if (!category) {
         throw new NotFoundException(
-          `The category with id: ${categoryId} does not exist`,
+          `The category with ID: '${categoryId}' does not exist`,
         );
       }
 
       return category;
     } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
-        `Failed to retrieve category with id: '${categoryId}'. Please try again later.`,
+        `Failed to retrieve category with ID: '${categoryId}'. Please try again later.`,
         { cause: e },
       );
     }
@@ -136,7 +140,7 @@ export class CategoryService {
 
       if (!category) {
         throw new NotFoundException(
-          `The category with id: ${categoryId} did not exist`,
+          `The category with ID: '${categoryId}' did not exist`,
         );
       }
 
@@ -159,6 +163,10 @@ export class CategoryService {
           );
         }
       } else {
+        if (e instanceof NotFoundException) {
+          throw e;
+        }
+
         throw new InternalServerErrorException(
           `Something went wrong updating category: '${categoryId}' `,
           { cause: e },
@@ -175,13 +183,13 @@ export class CategoryService {
 
       if (!category) {
         throw new NotFoundException(
-          `The category with id: ${categoryId} did not exist`,
+          `The category with ID: '${categoryId}' did not exist`,
         );
       }
 
       if (category.is_deleted) {
         throw new ConflictException(
-          `The category with id: ${categoryId} is already deleted`,
+          `The category with ID: '${categoryId}' is already deleted`,
         );
       }
 
@@ -193,6 +201,10 @@ export class CategoryService {
         },
       });
     } catch (e) {
+      if (e instanceof NotFoundException || e instanceof ConflictException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Failed to delete categorie with id: '${categoryId}'. Please try again later.`,
         { cause: e },
@@ -208,13 +220,13 @@ export class CategoryService {
 
       if (!category) {
         throw new NotFoundException(
-          `The category with id: ${categoryId} did not exist`,
+          `The category with ID: '${categoryId}' did not exist`,
         );
       }
 
       if (!category.is_deleted) {
         throw new ConflictException(
-          `The category with id: ${categoryId} is not deleted`,
+          `The category with ID: '${categoryId}' is not deleted`,
         );
       }
 
@@ -226,8 +238,11 @@ export class CategoryService {
         },
       });
     } catch (e) {
+      if (e instanceof NotFoundException || e instanceof ConflictException) {
+        throw e;
+      }
       throw new InternalServerErrorException(
-        `Failed to restore categorie with id: '${categoryId}'. Please try again later.`,
+        `Failed to restore categorie with ID: '${categoryId}'. Please try again later.`,
         { cause: e },
       );
     }

@@ -1,40 +1,41 @@
 version: "3.8"
 services:
-  pms-production-database:
+  catalog-production-database:
     image: mysql_image:latest
-    container_name: ${DATABASE_CONTAINER_NAME}
+    container_name: ${CATALOG_DATABASE_CONTAINER_NAME}
     restart: always
     ports:
-      - ${DATABASE_PORT}:3306
+      - ${CATALOG_DATABASE_PORT}:${CATALOG_DATABASE_PORT}
     env_file:
       - .env
     environment:
-      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${DATABASE_NAME}
-      - MYSQL_USER=${DATABASE_USER}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${CATALOG_DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${CATALOG_DATABASE_NAME}
+      - MYSQL_USER=${CATALOG_DATABASE_USER}
+      - MYSQL_PASSWORD=${CATALOG_DATABASE_PASSWORD}
+      - MYSQL_TCP_PORT=${CATALOG_DATABASE_PORT}
     networks:
-      - pms_production_network
+      - catalog_production_network
     volumes:
-      - pms_mysql_data:/var/lib/mysql
+      - catalog_mysql_data_isolated:/var/lib/mysql
     
-  pms-production-app:
-    image: pms_prod_app:latest
-    container_name: ${APP_CONTAINER_NAME}
+  catalog-production-app:
+    image: catalog_prod_app:latest
+    container_name: ${CATALOG_APP_CONTAINER_NAME}
     restart: no
-    entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${DATABASE_CONN_RETRY_DELAY:- 2}; done"]
+    entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${CATALOG_DATABASE_CONN_RETRY_DELAY:- 2}; done"]
     ports:
-      - ${APP_PORT}:3000
+      - ${CATALOG_APP_PORT}:${CATALOG_APP_PORT}
     depends_on:
-      - pms-production-database
+      - catalog-production-database
     env_file:
       - .env
     networks:
-      - pms_production_network
+      - catalog_production_network
     
 volumes:
-  pms_mysql_data:
+  catalog_mysql_data_isolated:
     driver: local
 
 networks:
-  pms_production_network:
+  catalog_production_network:

@@ -15,7 +15,7 @@ import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/createCategoryBody.dto';
 import { DefaultResponseDto } from 'src/common/dto/defaultResponse.dto';
 import { EditCategoryDto } from './dto/editCategoryBody.dto';
-import { ApiAcceptedResponse, ApiOkResponse, ApiOperation, ApiTags, getSchemaPath } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   GetAllCategoriesQueryParamsDto,
   GetAllDeletedCategoriesQueryParamsDto,
@@ -48,9 +48,6 @@ export class CategoryController {
   @Get()
   @Version('1')
   @ApiOperation({ summary: 'Get all categories' })
-  @ApiOkResponse({
-    description: 'All categories retrieved successfully.',
-  })
   async getAllCategories(
     @Query() allCategoriesQueryParamsDto: GetAllCategoriesQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -65,24 +62,6 @@ export class CategoryController {
         categories: categories,
         totalEntries: totalEntries,
       },
-    };
-
-    return response;
-  }
-
-  @Get(':id')
-  @Version('1')
-  @ApiOperation({ summary: `Get a category by it's id` })
-  async getCategoryById(
-    @Param('id', ParseIntPipe) categoryId: number,
-  ): Promise<DefaultResponseDto> {
-    const category = await this.categoryService.getCategoryById(categoryId);
-
-    const response: DefaultResponseDto = {
-      status: 'Success',
-      statusCode: HttpStatus.OK,
-      statusText: `Category with id: '${categoryId}' retrived successfully.`,
-      data: category,
     };
 
     return response;
@@ -108,6 +87,24 @@ export class CategoryController {
         categories: deletedCategories,
         totalEntries: totalEntries,
       },
+    };
+
+    return response;
+  }
+
+  @Get(':id')
+  @Version('1')
+  @ApiOperation({ summary: `Get a category by it's id` })
+  async getCategoryById(
+    @Param('id', ParseIntPipe) categoryId: number,
+  ): Promise<DefaultResponseDto> {
+    const category = await this.categoryService.getCategoryById(categoryId);
+
+    const response: DefaultResponseDto = {
+      status: 'Success',
+      statusCode: HttpStatus.OK,
+      statusText: `Category with id: '${categoryId}' retrived successfully.`,
+      data: category,
     };
 
     return response;

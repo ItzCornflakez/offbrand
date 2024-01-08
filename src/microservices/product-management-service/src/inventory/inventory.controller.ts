@@ -11,7 +11,7 @@ import {
   Version,
 } from '@nestjs/common';
 import { InventoryService } from './inventory.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DefaultResponseDto } from 'src/common/dto/defaultResponse.dto';
 import {
   GetAllInventoriesQueryParamsDto,
@@ -28,6 +28,7 @@ export class InventoryController {
 
   @Get()
   @Version('1')
+  @ApiOperation({ summary: `Get all inventories` })
   async getAllInventories(
     @Query() getAllInventoriesQueryParamsDto: GetAllInventoriesQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -51,6 +52,7 @@ export class InventoryController {
 
   @Get(':id')
   @Version('1')
+  @ApiOperation({ summary: `Get a inventory by it's id` })
   async getInventoryById(
     @Param('id', ParseIntPipe) inventoryId: number,
   ): Promise<DefaultResponseDto> {
@@ -68,6 +70,7 @@ export class InventoryController {
 
   @Get('/deleted')
   @Version('1')
+  @ApiOperation({ summary: `Get all deleted inventories` })
   async getAllDeletedInventories(
     @Param() getInventoriesQueryParamsDto: GetInventoriesQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -91,6 +94,7 @@ export class InventoryController {
 
   @Put(':id')
   @Version('1')
+  @ApiOperation({ summary: `Update a inventory by it's id` })
   async updateInventoryById(
     @Param('id', ParseIntPipe) inventoryId: number,
     @Body() editInventoryBodyDto: EditInventoryBodyDto,
@@ -112,6 +116,7 @@ export class InventoryController {
 
   @Patch(':id/delete')
   @Version('1')
+  @ApiOperation({ summary: `Delete a inventory by it's id` })
   async deleteInventoryById(
     @Param('id', ParseIntPipe) inventoryId: number,
   ): Promise<DefaultResponseDto> {
@@ -128,6 +133,7 @@ export class InventoryController {
 
   @Patch('id/restore')
   @Version('1')
+  @ApiOperation({ summary: `Restore a inventory by it's id` })
   async restoreInventoryById(
     @Param('id', ParseIntPipe) inventoryId: number,
   ): Promise<DefaultResponseDto> {
@@ -144,6 +150,7 @@ export class InventoryController {
 
   @Patch(':id/reduce')
   @Version('1')
+  @ApiOperation({ summary: `Reduce the quantity of a inventory by it's id` })
   async reduceInventoryQuantityById(
     @Param('id', ParseIntPipe) inventoryId: number,
     @Body() reduceQuantityBodyDto: ReduceQuantityBodyDto,
@@ -165,6 +172,7 @@ export class InventoryController {
 
   @Patch(':id/increase')
   @Version('1')
+  @ApiOperation({ summary: `Increase the quantity of a inventory by it's id` })
   async increaseInventoryQuantityById(
     @Param('id', ParseIntPipe) inventoryId: number,
     @Body() increaseQuantityBodyDto: IncreaseQuantityBodyDto,

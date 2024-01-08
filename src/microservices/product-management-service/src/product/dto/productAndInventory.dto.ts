@@ -12,7 +12,7 @@ import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateInventoryBodyDto {
-  @ApiProperty({ required: false, uniqueItems: true})
+  @ApiProperty({ required: false, uniqueItems: true })
   @IsOptional()
   @IsString()
   color: string;

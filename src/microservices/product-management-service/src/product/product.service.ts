@@ -22,37 +22,39 @@ export class ProductService {
 
   async createNewProduct(newProductDto: CreateProductBodyDto) {
     try {
-      const categoryId = newProductDto.category_id;
+      const { category_id: categoryId, ...rest } = newProductDto;
 
       const existingCategory = await this.prismaService.category.findUnique({
         where: { id: categoryId },
       });
-      
+
       if (!existingCategory) {
-        throw new NotFoundException(`Cannot create the new product because the category with ID: ${categoryId} does not exist.`);
+        throw new NotFoundException(
+          `Cannot create the new product because the category with ID: ${categoryId} does not exist.`,
+        );
       }
       const newProduct = await this.prismaService.product.create({
         data: {
-          ...newProductDto,
+          ...rest,
           inventories: {
             create: newProductDto.inventories,
           },
           categories: {
-            create:
-            {
+            create: {
               category: {
                 connect: {
-                  id: newProductDto.category_id,
+                  id: categoryId,
                 },
-              }
+              },
             },
           },
         },
         include: {
           inventories: true,
+          categories: true,
         },
       });
-      
+
       return newProduct;
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
@@ -68,6 +70,10 @@ export class ProductService {
           );
         }
       } else {
+        if (e instanceof NotFoundException) {
+          throw e;
+        }
+
         throw new InternalServerErrorException(
           'Something went wrong creating the new product, please try again later.',
           { cause: e },
@@ -88,12 +94,6 @@ export class ProductService {
       if (!product) {
         throw new NotFoundException(
           `Cannot perform the operation on the product with ID '${productId}' because it does not exist.`,
-        );
-      }
-
-      if (product.is_deleted) {
-        throw new ConflictException(
-          `Cannot perform the operation on the inventory with ID '${productId}' because it is marked as deleted.`,
         );
       }
 
@@ -121,6 +121,10 @@ export class ProductService {
           );
         }
       } else {
+        if (e instanceof NotFoundException) {
+          throw e;
+        }
+
         throw new InternalServerErrorException(
           'Something went wrong creating the new product, please try again later.',
           { cause: e },
@@ -146,6 +150,9 @@ export class ProductService {
         take: limit === 0 ? undefined : limit,
         include: {
           inventories: true,
+          categories: {
+            select: { category_id: true },
+          },
         },
       });
 
@@ -233,12 +240,6 @@ export class ProductService {
         );
       }
 
-      if (category.is_deleted) {
-        throw new ConflictException(
-          `Cannot retrive products related to the category with ID: '${categoryId}' because it is marked as deleted.`,
-        );
-      }
-
       //Default to default value if the query param is undefined
       const show_deleted = getProductsQueryParamsDto.show_deleted ?? true;
       const page = getProductsQueryParamsDto.page ?? 1;
@@ -248,8 +249,11 @@ export class ProductService {
 
       const products = await this.prismaService.product.findMany({
         where: show_deleted
-          ? { categories: {some: {category_id: categoryId }} }
-          : { categories: {some: {category_id: categoryId }}, is_deleted: false },
+          ? { categories: { some: { category_id: categoryId } } }
+          : {
+              categories: { some: { category_id: categoryId } },
+              is_deleted: false,
+            },
         skip,
         take: limit === 0 ? undefined : limit,
         include: {
@@ -259,8 +263,11 @@ export class ProductService {
 
       const totalEntries = await this.prismaService.product.count({
         where: show_deleted
-        ? { categories: {some: {category_id: categoryId }} }
-        : { categories: {some: {category_id: categoryId }}, is_deleted: false },
+          ? { categories: { some: { category_id: categoryId } } }
+          : {
+              categories: { some: { category_id: categoryId } },
+              is_deleted: false,
+            },
       });
 
       return { products, totalEntries };
@@ -284,12 +291,6 @@ export class ProductService {
       if (!discount) {
         throw new NotFoundException(
           `Cannot retrive products related to the discount with ID: '${discountId}' because it does not exist.`,
-        );
-      }
-
-      if (discount.is_deleted) {
-        throw new ConflictException(
-          `Cannot retrive products related to the discount with ID: '${discountId}' because it is marked as deleted.`,
         );
       }
 
@@ -394,10 +395,10 @@ export class ProductService {
     }
   }
 
-  async addProductToCategoryById(productId: number, categoryId: number){
+  async addProductToCategoryById(productId: number, categoryId: number) {
     try {
       const product = await this.prismaService.product.findUnique({
-        where: { id: productId},
+        where: { id: productId },
       });
 
       if (!product) {
@@ -432,25 +433,24 @@ export class ProductService {
         this.prismaService.product.update({
           where: { id: productId },
           data: {
-          categories: {
-            create:
-            {
-              category: {
-                connect: {
-                  id: categoryId,
+            categories: {
+              create: {
+                category: {
+                  connect: {
+                    id: categoryId,
+                  },
                 },
-              }
+              },
             },
           },
-        },
-        include: {
-          inventories: true,
-        }
+          include: {
+            inventories: true,
+          },
         }),
       ]);
 
       return updatedProduct;
-    } catch(e) {
+    } catch (e) {
       throw new InternalServerErrorException(
         `Failed to add the product with ID: '${productId}' to the category with ID: '${categoryId}'. Please try again later.`,
         { cause: e },
@@ -458,10 +458,10 @@ export class ProductService {
     }
   }
 
-  async removeProductFromCategoryById(productId: number, categoryId: number){
-    try{
+  async removeProductFromCategoryById(productId: number, categoryId: number) {
+    try {
       const product = await this.prismaService.product.findUnique({
-        where: { id: productId},
+        where: { id: productId },
       });
 
       if (!product) {
@@ -486,27 +486,42 @@ export class ProductService {
         );
       }
 
-      const NrOfCategoriesLeft =
-        await this.prismaService.productCategory.count({
+      if (category.is_deleted) {
+        throw new ConflictException(
+          `Cannot perform the operation on the product with ID: '${productId}' because the category with ID: '${categoryId}' is marked as deleted.`,
+        );
+      }
+
+      const NrOfCategoriesLeft = await this.prismaService.productCategory.count(
+        {
           where: {
             product_id: productId,
           },
-        });
+        },
+      );
 
       //If this is the last category associated with the product, throw an error
       if (NrOfCategoriesLeft === 1) {
         throw new ConflictException(
           `Cannot remove the product with ID '${productId}' from the category with ID: '${category}', because it is the last category that this product belongs to.`,
         );
-      } 
+      }
 
       await this.prismaService.$transaction([
         this.prismaService.productCategory.delete({
-          where: { product_id_category_id: { product_id: productId, category_id: categoryId } },
+          where: {
+            product_id_category_id: {
+              product_id: productId,
+              category_id: categoryId,
+            },
+          },
         }),
       ]);
     } catch (e) {
-
+      throw new InternalServerErrorException(
+        `Failed to remove the product with ID: '${productId}' from the category with ID: '${categoryId}'. Please try again later.`,
+        { cause: e },
+      );
     }
   }
 
