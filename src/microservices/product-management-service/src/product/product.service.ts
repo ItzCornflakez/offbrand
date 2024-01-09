@@ -60,7 +60,7 @@ export class ProductService {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === 'P2002') {
           throw new ConflictException(
-            'Cannot create the new product because two or more of the provided inventories share the same color. Each inventory must have a unique color for the product.',
+            'Unable to create the new product due to a conflict: two or more of the provided inventories share the same color, or two or more categories have the same idea. Each inventory must have a unique color for the product, and each category must be distinct.',
             { cause: e },
           );
         } else {
@@ -116,7 +116,7 @@ export class ProductService {
           );
         } else {
           throw new InternalServerErrorException(
-            'Something went wrong creating the new product, please try again later.',
+            `Something went wrong updating the product with ID: '${productId}' , please try again later.`,
             { cause: e },
           );
         }
@@ -126,7 +126,7 @@ export class ProductService {
         }
 
         throw new InternalServerErrorException(
-          'Something went wrong creating the new product, please try again later.',
+          `Something went wrong updating the product with ID: '${productId}' , please try again later.`,
           { cause: e },
         );
       }
@@ -207,6 +207,11 @@ export class ProductService {
         where: { id: productId },
         include: {
           inventories: true,
+          categories: {
+            select: {
+              category_id: true,
+            },
+          },
         },
       });
 
@@ -218,6 +223,10 @@ export class ProductService {
 
       return product;
     } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Failed to retrieve product with ID: '${productId}'. Please try again later.`,
         { cause: e },
@@ -272,6 +281,10 @@ export class ProductService {
 
       return { products, totalEntries };
     } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Failed to retrieve products related to the category with ID: '${categoryId}'. Please try again later.`,
         { cause: e },
@@ -320,6 +333,10 @@ export class ProductService {
 
       return { products, totalEntries };
     } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Failed to retrieve products related to the discount with ID: '${discountId}'. Please try again later.`,
         { cause: e },
@@ -348,6 +365,10 @@ export class ProductService {
 
       return inventories;
     } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Failed to retrieve inventories related to the product with ID: '${productId}'. Please try again later.`,
         { cause: e },
@@ -370,24 +391,27 @@ export class ProductService {
         );
       }
 
-      if (product.is_deleted) {
-        throw new ConflictException(
-          `Cannot perform the operation on the product with ID: '${productId}' because it is marked as deleted.`,
-        );
-      }
-
       const updatedProduct = await this.prismaService.$transaction([
         this.prismaService.product.update({
           where: { id: productId },
           data: { ...editProductBodyDto, last_updated_at: new Date() },
           include: {
             inventories: true,
+            categories: {
+              select: {
+                category_id: true,
+              },
+            },
           },
         }),
       ]);
 
       return updatedProduct;
     } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Failed to update the product with ID: '${productId}'. Please try again later.`,
         { cause: e },
@@ -407,12 +431,6 @@ export class ProductService {
         );
       }
 
-      if (product.is_deleted) {
-        throw new ConflictException(
-          `Cannot perform the operation on the product with ID: '${productId}' because it is marked as deleted.`,
-        );
-      }
-
       const category = await this.prismaService.category.findUnique({
         where: { id: categoryId },
       });
@@ -420,12 +438,6 @@ export class ProductService {
       if (!category) {
         throw new NotFoundException(
           `Cannot perform the operation on the product with ID: '${productId}' because the catecory with ID: '${categoryId}' does not exist.`,
-        );
-      }
-
-      if (category.is_deleted) {
-        throw new ConflictException(
-          `Cannot perform the operation on the product with ID: '${productId}' because the category with ID: '${categoryId}' is marked as deleted.`,
         );
       }
 
@@ -445,34 +457,54 @@ export class ProductService {
           },
           include: {
             inventories: true,
+            categories: {
+              select: {
+                category_id: true,
+              },
+            },
           },
         }),
       ]);
 
       return updatedProduct;
     } catch (e) {
-      throw new InternalServerErrorException(
-        `Failed to add the product with ID: '${productId}' to the category with ID: '${categoryId}'. Please try again later.`,
-        { cause: e },
-      );
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === 'P2002') {
+          throw new ConflictException(
+            `Cannot add the product with ID: '${productId}' to category with ID: '${categoryId}' because the product already belongs to that category.`,
+            { cause: e },
+          );
+        } else {
+          throw new InternalServerErrorException(
+            `Something went wrong updating the product with ID: '${productId}' , please try again later.`,
+            { cause: e },
+          );
+        }
+      } else {
+        if (e instanceof NotFoundException) {
+          throw e;
+        }
+
+        throw new InternalServerErrorException(
+          `Something went wrong updating the product with ID: '${productId}' , please try again later.`,
+          { cause: e },
+        );
+      }
     }
   }
 
   async removeProductFromCategoryById(productId: number, categoryId: number) {
     try {
       const product = await this.prismaService.product.findUnique({
-        where: { id: productId },
+        where: {
+          id: productId,
+          categories: { some: { category_id: categoryId } },
+        },
       });
 
       if (!product) {
         throw new NotFoundException(
-          `Cannot perform the operation on the product with ID: '${productId}' because it does not exist.`,
-        );
-      }
-
-      if (product.is_deleted) {
-        throw new ConflictException(
-          `Cannot perform the operation on the product with ID: '${productId}' because it is marked as deleted.`,
+          `Cannot perform the operation on the product with ID: '${productId}' because either the product does not exist or it does not belong to category: '${categoryId}.`,
         );
       }
 
@@ -503,7 +535,7 @@ export class ProductService {
       //If this is the last category associated with the product, throw an error
       if (NrOfCategoriesLeft === 1) {
         throw new ConflictException(
-          `Cannot remove the product with ID '${productId}' from the category with ID: '${category}', because it is the last category that this product belongs to.`,
+          `Cannot remove the product with ID '${productId}' from the category with ID: '${categoryId}', because it is the last category that this product belongs to.`,
         );
       }
 
@@ -518,6 +550,10 @@ export class ProductService {
         }),
       ]);
     } catch (e) {
+      if (e instanceof NotFoundException || e instanceof ConflictException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Failed to remove the product with ID: '${productId}' from the category with ID: '${categoryId}'. Please try again later.`,
         { cause: e },
@@ -534,12 +570,6 @@ export class ProductService {
       if (!product) {
         throw new NotFoundException(
           `Cannot perform the operation on the product with ID: '${productId}' because it does not exist.`,
-        );
-      }
-
-      if (product.is_deleted) {
-        throw new ConflictException(
-          `Cannot perform the operation on the product with ID: '${productId}' because it is marked as deleted.`,
         );
       }
 
@@ -569,6 +599,10 @@ export class ProductService {
 
       return updatedProduct;
     } catch (e) {
+      if (e instanceof NotFoundException || e instanceof ConflictException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Failed to apply discount with ID: '${discountId}' to the product with ID: '${productId}'. Please try again later.`,
         { cause: e },
@@ -588,12 +622,6 @@ export class ProductService {
         );
       }
 
-      if (product.is_deleted) {
-        throw new ConflictException(
-          `Cannot perform the operation on the product with ID: '${productId}' because it is marked as deleted.`,
-        );
-      }
-
       if (product.discount_id === null || product.discount_id === undefined) {
         throw new ConflictException(
           `Cannot perform the operation on the product with ID: '${productId}' because no discount is currently applied to the product.`,
@@ -609,6 +637,10 @@ export class ProductService {
 
       return updatedProduct;
     } catch (e) {
+      if (e instanceof NotFoundException || e instanceof ConflictException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Failed to remove the applied discount from the product with ID: '${productId}'. Please try again later.`,
         { cause: e },
@@ -646,6 +678,10 @@ export class ProductService {
         }),
       ]);
     } catch (e) {
+      if (e instanceof NotFoundException || e instanceof ConflictException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Failed to delete the product with ID: '${productId}'. Please try again later.`,
         { cause: e },
@@ -665,9 +701,9 @@ export class ProductService {
         );
       }
 
-      if (product.is_deleted) {
+      if (!product.is_deleted) {
         throw new ConflictException(
-          `Cannot perform the operation on the inventory with ID: '${productId}' because it is already marked as deleted.`,
+          `Cannot perform the operation on the inventory with ID: '${productId}' because it is not marked as deleted.`,
         );
       }
 
@@ -683,6 +719,10 @@ export class ProductService {
         }),
       ]);
     } catch (e) {
+      if (e instanceof NotFoundException || e instanceof ConflictException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException(
         `Failed to restore the product with ID: '${productId}'. Please try again later.`,
         { cause: e },

@@ -29,21 +29,15 @@ export class InventoryService {
     const skip = (page - 1) * limit;
 
     try {
-      const inventories = this.prismaService.inventory.findMany({
+      const inventories = await this.prismaService.inventory.findMany({
         where: show_deleted ? {} : { is_deleted: false },
         skip,
         take: limit === 0 ? undefined : limit,
-        select: {
-          id: true,
-          quantity: true,
-          color: true,
-          is_deleted: true,
-          created_at: true,
-          last_updated_at: true,
+        include: {
           product: {
             select: {
-              id: true,
               name: true,
+              is_deleted: true,
             },
           },
         },
@@ -66,17 +60,11 @@ export class InventoryService {
     try {
       const inventory = await this.prismaService.inventory.findUnique({
         where: { id: inventoryId },
-        select: {
-          id: true,
-          quantity: true,
-          color: true,
-          is_deleted: true,
-          created_at: true,
-          last_updated_at: true,
+        include: {
           product: {
             select: {
-              id: true,
               name: true,
+              is_deleted: true,
             },
           },
         },
@@ -111,17 +99,11 @@ export class InventoryService {
         where: { is_deleted: true },
         skip,
         take: limit === 0 ? undefined : limit,
-        select: {
-          id: true,
-          quantity: true,
-          color: true,
-          is_deleted: true,
-          created_at: true,
-          last_updated_at: true,
+        include: {
           product: {
             select: {
-              id: true,
               name: true,
+              is_deleted: true,
             },
           },
         },
@@ -155,27 +137,15 @@ export class InventoryService {
         );
       }
 
-      if (inventory.is_deleted) {
-        throw new ConflictException(
-          `Cannot perform the operation on the inventory with ID '${inventoryId}' because it is marked as deleted.`,
-        );
-      }
-
       const updatedInventory = await this.prismaService.$transaction([
         this.prismaService.inventory.update({
           where: { id: inventoryId },
           data: { ...editInventoryBodyDto, last_updated_at: new Date() },
-          select: {
-            id: true,
-            quantity: true,
-            color: true,
-            is_deleted: true,
-            created_at: true,
-            last_updated_at: true,
+          include: {
             product: {
               select: {
-                id: true,
                 name: true,
+                is_deleted: true,
               },
             },
           },
@@ -245,7 +215,14 @@ export class InventoryService {
         }),
       ]);
     } catch (e) {
-      throw new InternalServerErrorException('', { cause: e });
+      if (e instanceof NotFoundException || e instanceof ConflictException) {
+        throw e;
+      }
+
+      throw new InternalServerErrorException(
+        `Could not delete inventory with ID: '${inventoryId}', please try again later.`,
+        { cause: e },
+      );
     }
   }
 
@@ -275,7 +252,7 @@ export class InventoryService {
       // Check if related product is deleted
       if (product.is_deleted) {
         throw new ConflictException(
-          `The product with id: '${product.id}' is deleted! Restore it first.`,
+          `Cannot perform the operation because the product with ID: '${product.id}' is deleted! Restore it first.`,
         );
       }
 
@@ -286,7 +263,14 @@ export class InventoryService {
         }),
       ]);
     } catch (e) {
-      throw new InternalServerErrorException('', { cause: e });
+      if (e instanceof NotFoundException || e instanceof ConflictException) {
+        throw e;
+      }
+
+      throw new InternalServerErrorException(
+        `Could not delete inventory with ID: '${inventoryId}', please try again later.`,
+        { cause: e },
+      );
     }
   }
 

@@ -8,16 +8,6 @@ export class EditProductBodyDto {
   name?: string;
 
   @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNumber()
-  category_id?: number;
-
-  @ApiProperty({ required: false, nullable: true })
-  @IsOptional()
-  @IsNumber()
-  discount_id?: number;
-
-  @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
   desc?: string;

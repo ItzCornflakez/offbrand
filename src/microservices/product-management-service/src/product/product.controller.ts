@@ -253,7 +253,7 @@ export class ProductController {
     return response;
   }
 
-  @Patch(':id/removeFromCategoy/:categoyId')
+  @Patch(':id/removeFromCategory/:categoryId')
   @Version('1')
   @ApiOperation({
     summary: `Remove a product to a category by the category's id`,
@@ -281,7 +281,7 @@ export class ProductController {
   @ApiOperation({ summary: `Add a discount to a product by the discount's id` })
   async setDiscountOnProduct(
     @Param('id', ParseIntPipe) productId: number,
-    @Param('discountId', ParseIntPipe) discountId: number,
+    @Param('discountid', ParseIntPipe) discountId: number,
   ): Promise<DefaultResponseDto> {
     const product = await this.productService.applyDiscountOnProductById(
       productId,
@@ -298,7 +298,7 @@ export class ProductController {
     return response;
   }
 
-  @Patch(':id/removeDiscount/:discountid')
+  @Patch(':id/removeDiscount')
   @Version('1')
   @ApiOperation({
     summary: `Remove a discount to a product by the discount's id`,

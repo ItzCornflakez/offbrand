@@ -50,24 +50,6 @@ export class InventoryController {
     return response;
   }
 
-  @Get(':id')
-  @Version('1')
-  @ApiOperation({ summary: `Get a inventory by it's id` })
-  async getInventoryById(
-    @Param('id', ParseIntPipe) inventoryId: number,
-  ): Promise<DefaultResponseDto> {
-    const inventory = await this.inventoryService.getInventoryById(inventoryId);
-
-    const response: DefaultResponseDto = {
-      status: 'Success',
-      statusCode: HttpStatus.OK,
-      statusText: `Inventory with ID: '${inventoryId}' was retrived successfully.`,
-      data: inventory,
-    };
-
-    return response;
-  }
-
   @Get('/deleted')
   @Version('1')
   @ApiOperation({ summary: `Get all deleted inventories` })
@@ -87,6 +69,24 @@ export class InventoryController {
         inventories: inventories,
         totalEntries: totalEntries,
       },
+    };
+
+    return response;
+  }
+
+  @Get(':id')
+  @Version('1')
+  @ApiOperation({ summary: `Get a inventory by it's id` })
+  async getInventoryById(
+    @Param('id', ParseIntPipe) inventoryId: number,
+  ): Promise<DefaultResponseDto> {
+    const inventory = await this.inventoryService.getInventoryById(inventoryId);
+
+    const response: DefaultResponseDto = {
+      status: 'Success',
+      statusCode: HttpStatus.OK,
+      statusText: `Inventory with ID: '${inventoryId}' was retrived successfully.`,
+      data: inventory,
     };
 
     return response;
@@ -131,7 +131,7 @@ export class InventoryController {
     return response;
   }
 
-  @Patch('id/restore')
+  @Patch(':id/restore')
   @Version('1')
   @ApiOperation({ summary: `Restore a inventory by it's id` })
   async restoreInventoryById(
