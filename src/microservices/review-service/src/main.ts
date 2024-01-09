@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ReviewModule } from './review.module';
+import { ReviewModule } from './review/review.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(ReviewModule);

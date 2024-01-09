@@ -19,6 +19,6 @@ model Review {
   comment    String
   dislikes   Int
   likes      Int
-  created_at DateTime  @default(dbgenerated("NOW()"))
-  updated_at DateTime  @default(dbgenerated("NOW()"))
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
 }
