@@ -7,6 +7,7 @@ import {
 } from '@prisma/client';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import {hashPassword} from '../utils/password.utils'
+import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 
 
 @Controller()
@@ -136,10 +137,10 @@ export class UserController {
   }
 
 
-  @Get('user/:id')
-  async getUser(@Param('id') id: string): Promise<UserModel> {
-    return this.userService.user({ id: Number(id) });
-  }
+  //@Get('user/:id')
+  //async getUser(@Param('id') id: string): Promise<UserModel> {
+  //  return this.userService.user({ id: Number(id) });
+  //}
 
   @Get('user/:id/details')
   async getUserDetails(@Param('id') id: string): Promise<UserDetailsModel> {
@@ -149,5 +150,37 @@ export class UserController {
   @Get('user/:id/password')
   async getPassword(@Param('id') id: string): Promise<PasswordModel> {
     return this.userService.password({ id: Number(id) });
+  }
+
+
+  /*
+  @Get('getUser')
+  async getUserByEmail(@Param('email') email: string): Promise<> {
+    var id = (await this.userService.getUserByEmail({ email: string(email) })).id;
+    var role =  (await this.userService.user({ id: Number(id) })).role;
+    var payload = {id, role, email};
+    return payload;
+  }
+*/
+
+  @MessagePattern({ cmd: 'get-user' })
+  async getUser(@Payload() data: any, @Ctx() context: RmqContext) {
+    const email = data.email;
+
+    try {
+      var id = (await this.userService.user_details({ email: email })).id;
+      var role =  (await this.userService.user({ id: Number(id) })).role;
+      const user = await this.userService.getUserByEmail(email);
+      
+      const responseArray = user ? [{ id: id, role: role, email: email }] : [];
+      
+      // Send the response back to the queue
+      return responseArray;
+    } catch (error) {
+      // Handle errors and send an appropriate response
+      console.error(error);
+      return { error: 'Failed to get user information.' };
+    }
+
   }
 }

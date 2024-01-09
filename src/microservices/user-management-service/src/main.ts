@@ -15,7 +15,7 @@ async function bootstrap() {
   );
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('UMS_APP_PORT');
+  const port = configService.get<number>('APP_PORT');
   app.enableVersioning({
     type: VersioningType.URI,
   });
