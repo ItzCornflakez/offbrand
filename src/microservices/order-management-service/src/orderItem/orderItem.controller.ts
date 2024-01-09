@@ -11,7 +11,6 @@ export class OrderItemController {
     ) {}
 
     @Post()
-    @Version('1')
     async createOrder(
       @Body() dto: OrderItemDto
     ): Promise<OrderItemModel> {
@@ -21,7 +20,6 @@ export class OrderItemController {
     }
   
     @Get(':id')
-    @Version('1')
     async getOrderItemById(@Param('id') id: string): Promise<OrderItemModel> {
       return this.orderItemService.orderItem({ 
         id: Number(id) 
@@ -29,11 +27,9 @@ export class OrderItemController {
     }
   
     @Get('backlog:id')
-    @Version('1')
     async getOrderItemBacklog(@Param('id') id: string): Promise<OrderItemModel[]> {
       return this.orderItemService.orderItems({
-        where: { 
-          is_deleted: false,
+        where: {
           order_id: Number(id)
         }
       });
@@ -42,7 +38,6 @@ export class OrderItemController {
     // Add update to different things here
   
     @Delete(':id')
-    @Version('1')
     async deleteOrder(@Param('id') id: string): Promise<OrderItemModel> {
       return this.orderItemService.deleteOrderItem({ id: Number(id) });
     }

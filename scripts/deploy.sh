@@ -1,9 +1,9 @@
 #!/bin/bash
-#cd ../src/microservices/order-management-service/scripts
+cd ../src/microservices/auth-service/scripts
 
-#./deploy_rabbitmq.sh
+./deploy.sh
 
-cd ../src/microservices/order-management-service/scripts
+cd ../../order-management-service/scripts
 
 ./deploy.sh
 

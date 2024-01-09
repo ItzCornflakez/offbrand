@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Version } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards, Version } from '@nestjs/common';
 import { OrderDto } from 'src/common/dto';
 import { Order as OrderModel, User as UserModel} from '@prisma/client';
 import { OrderService } from './order.service';
-import { UserDto } from 'src/common/dto';
 import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
+import { AuthGuard } from 'src/common/utils/auth.guard';
+import { JwtService } from '@nestjs/jwt';
 
 
 @Controller('order')
@@ -15,8 +16,9 @@ export class OrderController {
     // CREATE ENDPOINT
 
   @Post()
+  @UseGuards(new AuthGuard(new JwtService, ['admin', "user"]))
   async createOrder(
-    @Body() dto: OrderDto
+    @Body() dto: OrderDto 
   ): Promise<OrderModel> {
     //this.rabbitMQService.send('order-queue', {message: "hello"});
 
@@ -30,11 +32,19 @@ export class OrderController {
     });
   }
 
-  @Get('backlog:id')
-  async getOrderBacklog(@Param('id') id: string, @Body() dto: OrderDto): Promise<OrderModel[]> {
+  @Get('orders:user_id')
+  async getOrdersByUserId(@Param('user_id') id: string): Promise<OrderModel[]> {
     return this.orderService.orders({
       where: { 
-        is_deleted: false,
+        user_id: Number(id)
+      }
+    });
+  }
+
+  @Get('orders')
+  async getOrders(id: string): Promise<OrderModel[]> {
+    return this.orderService.orders({
+      where: { 
         user_id: Number(id)
       }
     });
@@ -47,20 +57,16 @@ export class OrderController {
     return this.orderService.deleteOrder({ id: Number(id) });
   }
 
-  @Post('user')
-  async createUser(
-    @Body() dto: UserDto
-  ): Promise<UserModel> {
-    //this.rabbitMQService.send('order-queue', {message: "hello"});
-    console.log("hello")
-
-    return this.orderService.createUser(dto);
-  }
-
   @MessagePattern({cmd: 'create-product'})
   async productCreated(@Ctx() context: RmqContext) {
-    console.log("in here 2")
     this.orderService.createProduct({
+    })
+        
+  }
+
+  @MessagePattern({cmd: 'create-user'})
+  async userCreated(@Ctx() context: RmqContext) {
+    this.orderService.createUser({
     })
         
   }

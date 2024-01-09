@@ -3,7 +3,7 @@ CREATE TABLE `orders` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
     `total_price` DOUBLE NOT NULL,
-    `is_deleted` BOOLEAN NOT NULL DEFAULT false,
+    `status` ENUM('Open', 'Closed', 'Deleted') NOT NULL DEFAULT 'Open',
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -18,7 +18,7 @@ CREATE TABLE `order_items` (
     `quantity` INTEGER NOT NULL,
     `color` VARCHAR(191) NOT NULL,
     `price` DOUBLE NOT NULL,
-    `is_deleted` BOOLEAN NOT NULL DEFAULT false,
+    `status` ENUM('Open', 'Closed', 'Deleted') NOT NULL DEFAULT 'Open',
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
