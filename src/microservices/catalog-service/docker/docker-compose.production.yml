@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+  catalog-production-database:
+    image: mysql_image:latest
+    container_name: ${CATALOG_DATABASE_CONTAINER_NAME}
+    restart: always
+    ports:
+      - ${CATALOG_DATABASE_PORT}:${CATALOG_DATABASE_PORT}
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${CATALOG_DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${CATALOG_DATABASE_NAME}
+      - MYSQL_USER=${CATALOG_DATABASE_USER}
+      - MYSQL_PASSWORD=${CATALOG_DATABASE_PASSWORD}
+      - MYSQL_TCP_PORT=${CATALOG_DATABASE_PORT}
+    networks:
+      - catalog_production_network
+    volumes:
+      - catalog_mysql_data_isolated:/var/lib/mysql
+    
+  catalog-production-app:
+    image: catalog_prod_app:latest
+    container_name: ${CATALOG_APP_CONTAINER_NAME}
+    restart: no
+    entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${CATALOG_DATABASE_CONN_RETRY_DELAY:- 2}; done"]
+    ports:
+      - ${CATALOG_APP_PORT}:${CATALOG_APP_PORT}
+    depends_on:
+      - catalog-production-database
+    env_file:
+      - .env
+    networks:
+      - catalog_production_network
+    
+volumes:
+  catalog_mysql_data_isolated:
+    driver: local
+
+networks:
+  catalog_production_network:

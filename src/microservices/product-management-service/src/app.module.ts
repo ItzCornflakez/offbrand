@@ -3,18 +3,18 @@ import { ConfigModule } from '@nestjs/config';
 
 import { ProductModule } from './product/product.module';
 import { InventoryModule } from './inventory/inventory.module';
-import { categoryModule } from './category/category.module';
+import { CategoryModule } from './category/category.module';
 import { DiscountModule } from './discount/discount.module';
 
 import {
   validateTestEnvFile,
   validateProductionEnvFile,
 } from '../config/environment.validation';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { PrismaModule } from './prisma/prisma.module';
 
 //Validate the env file
 let validateFunction;
-switch (process.env.NODE_ENV) {
+switch (process.env.PMS_NODE_ENV) {
   case 'production':
     validateFunction = validateProductionEnvFile;
     break;
@@ -23,7 +23,7 @@ switch (process.env.NODE_ENV) {
     break;
   default:
     throw new Error(
-      `Unsupported or missing NODE_ENV: ${process.env.NODE_ENV}. Please set NODE_ENV to either 'production' or 'test' in the environment file.`,
+      `Unsupported or missing NODE_ENV: ${process.env.PMS_NODE_ENV}. Please set NODE_ENV to either 'production' or 'test' in the environment file.`,
     );
 }
 
@@ -33,13 +33,11 @@ switch (process.env.NODE_ENV) {
       isGlobal: true,
       validate: validateFunction,
     }), //Load configuration file
-    ProductModule,
-    InventoryModule,
-    categoryModule,
-    DiscountModule,
-    
+    ProductModule.register(),
+    InventoryModule.register(),
+    CategoryModule.register(),
+    DiscountModule.register(),
+    PrismaModule,
   ],
-},
-
-)
+})
 export class AppModule {}
