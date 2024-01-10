@@ -14,6 +14,7 @@ export class PrismaService extends PrismaClient {
     });
   }
 
-  //Clean the database (used for testing)
-  async cleanDb() {}
+  cleanDb() {
+    this.category.deleteMany();
+  }
 }

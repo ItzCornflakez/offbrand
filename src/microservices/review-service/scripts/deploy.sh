@@ -93,6 +93,15 @@ deploy_test_locally(){
     echo "------------------- Done running tests -------------------"
 }
 
+deploy_system_prod(){
+    log "Bulding docker images"
+
+    build_db_image || error "Could not build database image"
+    build_app_prod_image || error "Could not build app image with target production"
+
+    log "Done building the docker images"
+}
+
 if [ $# -eq 0 ]; then
     deploy_prod_locally
 
@@ -101,6 +110,9 @@ elif [ "$1" == "test" ]; then
 
 elif [ "$1" == "prod" ]; then
     deploy_prod_locally
+
+elif [ "$1" == "system-prod" ]; then
+    deploy_system_prod
 
 else
     error "Add 'prod' flag to deploy locally in production mode or 'test' to run the e2e tests (the app is not dockerized here)" 

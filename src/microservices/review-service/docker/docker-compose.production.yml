@@ -2,30 +2,30 @@ version: "3.8"
 services:
   rms-production-database:
     image: mysql_image:latest
-    container_name: ${DATABASE_CONTAINER_NAME}
+    container_name: ${RMS_DATABASE_CONTAINER_NAME}
     restart: always
     ports:
-      - ${DATABASE_PORT}:${DATABASE_PORT}
+      - ${RMS_DATABASE_PORT}:${RMS_DATABASE_PORT}
     env_file:
       - .env
     environment:
-      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${DATABASE_NAME}
-      - MYSQL_USER=${DATABASE_USER}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
-      - MYSQL_TCP_PORT=${DATABASE_PORT}
+      - MYSQL_ROOT_PASSWORD=${RMS_DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${RMS_DATABASE_NAME}
+      - MYSQL_USER=${RMS_DATABASE_USER}
+      - MYSQL_PASSWORD=${RMS_DATABASE_PASSWORD}
+      - MYSQL_TCP_PORT=${RMS_DATABASE_PORT}
     networks:
       - rms_production_network
     volumes:
-      - rms_mysql_data:/var/lib/mysql
+      - rms_mysql_data_isolated:/var/lib/mysql
     
   rms-production-app:
     image: rms_prod_app:latest
-    container_name: ${APP_CONTAINER_NAME}
+    container_name: ${RMS_APP_CONTAINER_NAME}
     restart: no
-    entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${DATABASE_CONN_RETRY_DELAY:- 2}; done"]
+    entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${RMS_DATABASE_CONN_RETRY_DELAY:- 2}; done"]
     ports:
-      - ${APP_PORT}:${APP_PORT}
+      - ${RMS_APP_PORT}:${RMS_APP_PORT}
     depends_on:
       - rms-production-database
     env_file:
@@ -34,7 +34,7 @@ services:
       - rms_production_network
     
 volumes:
-  rms_mysql_data:
+  rms_mysql_data_isolated:
     driver: local
 
 networks:

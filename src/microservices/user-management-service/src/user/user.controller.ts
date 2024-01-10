@@ -112,7 +112,7 @@ export class UserController {
     const response: DefaultResponseDto = {
       status: 'Success',
       statusCode: HttpStatus.CREATED,
-      statusText: `The password for user with ID: '${id}' was deleted successfully.`,
+      statusText: `User deleted successfully.`,
     };
 
     return response;

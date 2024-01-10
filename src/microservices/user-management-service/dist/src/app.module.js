@@ -13,7 +13,7 @@ const user_module_1 = require("./user/user.module");
 const environment_validation_1 = require("../config/environment.validation");
 const prisma_module_1 = require("./prisma/prisma.module");
 let validateFunction;
-switch (process.env.NODE_ENV) {
+switch (process.env.UMS_NODE_ENV) {
     case 'production':
         validateFunction = environment_validation_1.validateProductionEnvFile;
         break;
@@ -21,7 +21,7 @@ switch (process.env.NODE_ENV) {
         validateFunction = environment_validation_1.validateTestEnvFile;
         break;
     default:
-        throw new Error(`Unsupported or missing NODE_ENV: ${process.env.NODE_ENV}. Please set NODE_ENV to either 'production' or 'test' in the environment file.`);
+        throw new Error(`Unsupported or missing NODE_ENV: ${process.env.UMS_NODE_ENV}. Please set NODE_ENV to either 'production' or 'test' in the environment file.`);
 }
 let AppModule = class AppModule {
 };

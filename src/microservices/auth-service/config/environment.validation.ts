@@ -5,67 +5,67 @@ import { IsNumber, IsString, validateSync } from 'class-validator';
 //Defines what should be included in the .env.test file
 class TestEnvironmentVariables {
     @IsNumber()
-    DATABASE_PORT: number
+    AUTH_DATABASE_PORT: number
 
     @IsNumber()
-    APP_PORT: number
+    AUTH_APP_PORT: number
 
     @IsString()
-    DATABASE_CONTAINER_NAME: string;
+    AUTH_DATABASE_CONTAINER_NAME: string;
 
     @IsString()
-    DATABASE_ROOT_PASSWORD: string;
+    AUTH_DATABASE_ROOT_PASSWORD: string;
 
     @IsString()
-    DATABASE_NAME: string;
+    AUTH_DATABASE_NAME: string;
 
     @IsString()
-    DATABASE_USER: string;
+    AUTH_DATABASE_USER: string;
 
     @IsString()
-    DATABASE_PASSWORD: string;
+    AUTH_DATABASE_PASSWORD: string;
 
     @IsString()
-    DATABASE_URL: string;
+    AUTH_DATABASE_URL: string;
 
     @IsString()
-    NODE_ENV: string;
+    AUTH_NODE_ENV: string;
 }
 
 //Defines what should be included in the .env.production file
 class ProductionEnvironmentVariables{
     @IsNumber()
-    DATABASE_PORT: number
+    AUTH_DATABASE_PORT: number
 
     @IsNumber()
-    APP_PORT: number
+    AUTH_APP_PORT: number
 
     @IsString()
-    DATABASE_CONTAINER_NAME: string;
+    AUTH_DATABASE_CONTAINER_NAME: string;
 
     @IsString()
-    APP_CONTAINER_NAME: string;
+    AUTH_APP_CONTAINER_NAME: string;
 
     @IsNumber()
-    DATABASE_CONN_RETRY_DELAY: number
+    AUTH_DATABASE_CONN_RETRY_DELAY: number
 
     @IsString()
-    DATABASE_ROOT_PASSWORD: string;
+    AUTH_DATABASE_ROOT_PASSWORD: string;
 
     @IsString()
-    DATABASE_NAME: string;
+    AUTH_DATABASE_NAME: string;
 
     @IsString()
-    DATABASE_USER: string;
+    AUTH_DATABASE_USER: string;
 
     @IsString()
-    DATABASE_PASSWORD: string;
+    AUTH_DATABASE_PASSWORD: string;
 
     @IsString()
-    DATABASE_URL: string;
+    AUTH_DATABASE_URL: string;
 
     @IsString()
-    NODE_ENV: string;
+    AUTH_NODE_ENV: string;
 
 }
 

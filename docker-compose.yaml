@@ -17,6 +17,111 @@ services:
     networks:
       - offbrand_production_network
 
+  #Auth-service
+  auth-production-database:
+    image: mysql_image:latest
+    container_name: ${AUTH_DATABASE_CONTAINER_NAME}
+    restart: always
+    ports:
+      - ${AUTH_DATABASE_PORT}:${AUTH_DATABASE_PORT}
+    env_file:
+      - .env
+    environment:
+      - MYSQL_TCP_PORT=${AUTH_DATABASE_PORT}
+      - MYSQL_ROOT_PASSWORD=${AUTH_DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${AUTH_DATABASE_NAME}
+      - MYSQL_USER=${AUTH_DATABASE_USER}
+      - MYSQL_PASSWORD=${AUTH_DATABASE_PASSWORD}
+    networks:
+      - offbrand_production_network
+    volumes:
+      - auth_mysql_data:/var/lib/mysql
+    
+  auth-production-app:
+    image: auth_prod_app:latest
+    container_name: ${AUTH_APP_CONTAINER_NAME}
+    restart: no
+    entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${AUTH_DATABASE_CONN_RETRY_DELAY:- 2}; done"]
+    ports:
+      - ${AUTH_APP_PORT}:${AUTH_APP_PORT}
+    depends_on:
+      - auth-production-database
+      - rabbitmq
+    env_file:
+      - .env
+    networks:
+      - offbrand_production_network
+
+  #Catalog-management-service
+  catalog-production-database:
+    image: mysql_image:latest
+    container_name: ${CATALOG_DATABASE_CONTAINER_NAME}
+    restart: always
+    ports:
+      - ${CATALOG_DATABASE_PORT}:${CATALOG_DATABASE_PORT}
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${CATALOG_DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${CATALOG_DATABASE_NAME}
+      - MYSQL_USER=${CATALOG_DATABASE_USER}
+      - MYSQL_PASSWORD=${CATALOG_DATABASE_PASSWORD}
+      - MYSQL_TCP_PORT=${CATALOG_DATABASE_PORT}
+    networks:
+      - offbrand_production_network
+    volumes:
+      - catalog_mysql_data:/var/lib/mysql
+    
+  catalog-production-app:
+    image: catalog_prod_app:latest
+    container_name: ${CATALOG_APP_CONTAINER_NAME}
+    restart: no
+    entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${CATALOG_DATABASE_CONN_RETRY_DELAY:- 2}; done"]
+    ports:
+      - ${CATALOG_APP_PORT}:${CATALOG_APP_PORT}
+    depends_on:
+      - catalog-production-database
+      - rabbitmq
+    env_file:
+      - .env
+    networks:
+      - offbrand_production_network
+  
+  #Order-management-service
+  oms-production-database:
+    image: mysql_image:latest
+    container_name: ${OMS_DATABASE_CONTAINER_NAME}
+    restart: always
+    ports:
+      - ${OMS_DATABASE_PORT}:${OMS_DATABASE_PORT}
+    env_file:
+      - .env
+    environment:
+      - MYSQL_TCP_PORT=${OMS_DATABASE_PORT}
+      - MYSQL_ROOT_PASSWORD=${OMS_DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${OMS_DATABASE_NAME}
+      - MYSQL_USER=${OMS_DATABASE_USER}
+      - MYSQL_PASSWORD=${OMS_DATABASE_PASSWORD}
+    networks:
+      - offbrand_production_network
+    volumes:
+      - oms_mysql_data:/var/lib/mysql
+    
+  oms-production-app:
+    image: oms_prod_app:latest
+    container_name: ${OMS_APP_CONTAINER_NAME}
+    restart: no
+    entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${OMS_DATABASE_CONN_RETRY_DELAY:- 2}; done"]
+    ports:
+      - ${OMS_APP_PORT}:${OMS_APP_PORT}
+    depends_on:
+      - oms-production-database
+      - rabbitmq
+    env_file:
+      - .env
+    networks:
+      - offbrand_production_network
+    
   #Product-management-serivce
   pms-production-database:
     image: mysql_image:latest
@@ -24,8 +129,6 @@ services:
     restart: always
     ports:
       - ${PMS_DATABASE_PORT}:${PMS_DATABASE_PORT}
-    depends_on:
-      - rabbitmq
     env_file:
       - .env
     environment:
@@ -54,37 +157,70 @@ services:
     networks:
       - offbrand_production_network
 
-  #Catalog-management-service
-  catalog-production-database:
+#Review-management-service
+  rms-production-database:
     image: mysql_image:latest
-    container_name: ${CATALOG_DATABASE_CONTAINER_NAME}
+    container_name: ${RMS_DATABASE_CONTAINER_NAME}
     restart: always
     ports:
-      - ${CATALOG_DATABASE_PORT}:${CATALOG_DATABASE_PORT}
-    depends_on:
-      - rabbitmq
+      - ${RMS_DATABASE_PORT}:${RMS_DATABASE_PORT}
     env_file:
       - .env
     environment:
-      - MYSQL_ROOT_PASSWORD=${CATALOG_DATABASE_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${CATALOG_DATABASE_NAME}
-      - MYSQL_USER=${CATALOG_DATABASE_USER}
-      - MYSQL_PASSWORD=${CATALOG_DATABASE_PASSWORD}
-      - MYSQL_TCP_PORT=${CATALOG_DATABASE_PORT}
+      - MYSQL_ROOT_PASSWORD=${RMS_DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${RMS_DATABASE_NAME}
+      - MYSQL_USER=${RMS_DATABASE_USER}
+      - MYSQL_PASSWORD=${RMS_DATABASE_PASSWORD}
+      - MYSQL_TCP_PORT=${RMS_DATABASE_PORT}
     networks:
       - offbrand_production_network
     volumes:
-      - catalog_mysql_data:/var/lib/mysql
+      - rms_mysql_data:/var/lib/mysql
     
-  catalog-production-app:
-    image: catalog_prod_app:latest
-    container_name: ${CATALOG_APP_CONTAINER_NAME}
+  rms-production-app:
+    image: rms_prod_app:latest
+    container_name: ${RMS_APP_CONTAINER_NAME}
     restart: no
-    entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${CATALOG_DATABASE_CONN_RETRY_DELAY:- 2}; done"]
+    entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${RMS_DATABASE_CONN_RETRY_DELAY:- 2}; done"]
     ports:
-      - ${CATALOG_APP_PORT}:${CATALOG_APP_PORT}
+      - ${RMS_APP_PORT}:${RMS_APP_PORT}
     depends_on:
-      - catalog-production-database
+      - rms-production-database
+      - rabbitmq
+    env_file:
+      - .env
+    networks:
+      - offbrand_production_network
+
+  # User-management-service
+  ums-production-database:
+    image: mysql_image:latest
+    container_name: ${UMS_DATABASE_CONTAINER_NAME}
+    restart: always
+    ports:
+      - ${UMS_DATABASE_PORT}:${UMS_DATABASE_PORT}
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${UMS_DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${UMS_DATABASE_NAME}
+      - MYSQL_USER=${UMS_DATABASE_USER}
+      - MYSQL_PASSWORD=${UMS_DATABASE_PASSWORD}
+      - MYSQL_TCP_PORT=${UMS_DATABASE_PORT}
+    networks:
+      - offbrand_production_network
+    volumes:
+      - ums_mysql_data:/var/lib/mysql
+    
+  ums-production-app:
+    image: ums_prod_app:latest
+    container_name: ${UMS_APP_CONTAINER_NAME}
+    restart: no
+    entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${UMS_DATABASE_CONN_RETRY_DELAY:- 2}; done"]
+    ports:
+      - ${UMS_APP_PORT}:${UMS_APP_PORT}
+    depends_on:
+      - ums-production-database
       - rabbitmq
     env_file:
       - .env
@@ -92,14 +228,18 @@ services:
       - offbrand_production_network
     
 volumes:
-  pms_mysql_data:
+  auth_mysql_data:
     driver: local
   catalog_mysql_data:
+    driver: local
+  oms_mysql_data:
+    driver: local
+  pms_mysql_data:
+    driver: local
+  rms_mysql_data:
+    driver: local
+  ums_mysql_data:
     driver: local
 
 networks:
   offbrand_production_network:
-
-
-
-

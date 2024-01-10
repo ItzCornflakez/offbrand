@@ -25,7 +25,7 @@ async function bootstrap() {
   // Swagger Options
   const options = new DocumentBuilder()
     .addBearerAuth()
-    .setTitle('Offbrand - Product-Management-Service API')
+    .setTitle('Offbrand - Catalog-Service API')
     .setDescription('Endpoints for the offbrand product management service')
     .setVersion('1.0')
     .build();

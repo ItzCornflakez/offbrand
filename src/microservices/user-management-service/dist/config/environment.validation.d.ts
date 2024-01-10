@@ -1,26 +1,26 @@
 declare class TestEnvironmentVariables {
-    DATABASE_PORT: number;
-    APP_PORT: number;
-    DATABASE_CONTAINER_NAME: string;
-    DATABASE_ROOT_PASSWORD: string;
-    DATABASE_NAME: string;
-    DATABASE_USER: string;
-    DATABASE_PASSWORD: string;
-    DATABASE_URL: string;
-    NODE_ENV: string;
+    UMS_DATABASE_PORT: number;
+    UMS_APP_PORT: number;
+    UMS_DATABASE_CONTAINER_NAME: string;
+    UMS_DATABASE_ROOT_PASSWORD: string;
+    UMS_DATABASE_NAME: string;
+    UMS_DATABASE_USER: string;
+    UMS_DATABASE_PASSWORD: string;
+    UMS_DATABASE_URL: string;
+    UMS_NODE_ENV: string;
 }
 declare class ProductionEnvironmentVariables {
-    DATABASE_PORT: number;
-    APP_PORT: number;
-    DATABASE_CONTAINER_NAME: string;
-    APP_CONTAINER_NAME: string;
-    DATABASE_CONN_RETRY_DELAY: number;
-    DATABASE_ROOT_PASSWORD: string;
-    DATABASE_NAME: string;
-    DATABASE_USER: string;
-    DATABASE_PASSWORD: string;
-    DATABASE_URL: string;
-    NODE_ENV: string;
+    UMS_DATABASE_PORT: number;
+    UMS_APP_PORT: number;
+    UMS_DATABASE_CONTAINER_NAME: string;
+    UMS_APP_CONTAINER_NAME: string;
+    UMS_DATABASE_CONN_RETRY_DELAY: number;
+    UMS_DATABASE_ROOT_PASSWORD: string;
+    UMS_DATABASE_NAME: string;
+    UMS_DATABASE_USER: string;
+    UMS_DATABASE_PASSWORD: string;
+    UMS_DATABASE_URL: string;
+    UMS_NODE_ENV: string;
 }
 export declare function validateTestEnvFile(config: Record<string, unknown>): TestEnvironmentVariables;
 export declare function validateProductionEnvFile(config: Record<string, unknown>): ProductionEnvironmentVariables;

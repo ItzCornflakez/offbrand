@@ -18,7 +18,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           transport: Transport.RMQ,
           options: {
             urls: [`amqp://user:password@rabbitmq:5672`],
-            queue: 'auth-queue',
+            queue: 'user-queue',
             queueOptions: {
               durable: false,
             },

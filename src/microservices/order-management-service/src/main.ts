@@ -62,7 +62,7 @@ async function bootstrap() {
 
 
   const configService = app.get(ConfigService);
-  const port = configService.get('APP_PORT');
+  const port = configService.get('OMS_APP_PORT');
   await app.listen(port);
 }
 bootstrap();

@@ -16,84 +16,95 @@ exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const common_2 = require("@nestjs/common");
-const password_utils_1 = require("../utils/password.utils");
+const microservices_1 = require("@nestjs/microservices");
+const allUser_dto_1 = require("../common/dto/allUser.dto");
+const updateUserDetails_dto_1 = require("../common/dto/updateUserDetails.dto");
 let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
     }
-    async createUser(requestData) {
-        try {
-            var userData = requestData.userData;
-            var userDetailsData = requestData.userDetailsData;
-            var passwordData = requestData.passwordData;
-            console.log('Received data:', userData, userDetailsData, passwordData);
-            console.log('Received Userdata:', userData);
-            console.log('Received UserDetailsData:', userDetailsData);
-            console.log('Received passwordData:', passwordData);
-            const user = await this.userService.createUser({
-                role: userData.role,
-            });
-            console.log('User Object:', user);
-            await this.userService.createUserDetails({
-                ...userDetailsData,
-                user: { connect: { id: user.id } },
-            });
-            const hashedPassword = await (0, password_utils_1.hashPassword)(passwordData.hash);
-            await this.userService.createPassword({
-                user: { connect: { id: user.id } },
-                hash: hashedPassword,
-            });
-        }
-        catch (error) {
-            console.error(error);
-            throw new common_2.HttpException('Internal Server Error', common_2.HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    async createUser(allUserDto) {
+        const user = await this.userService.createUser(allUserDto);
+        const response = {
+            status: 'Success',
+            statusCode: common_2.HttpStatus.CREATED,
+            statusText: 'User created successfully.',
+            data: user,
+        };
+        return response;
     }
     async updateUser(id, userData) {
-        return this.userService.updateUser({
+        const updatedUser = await this.userService.updateUser({
             where: { id: Number(id) },
             data: {
                 role: userData.role,
             }
         });
+        const response = {
+            status: 'Success',
+            statusCode: common_2.HttpStatus.CREATED,
+            statusText: `User with ID: ${id} updated successfully.`,
+            data: updatedUser,
+        };
+        return response;
     }
-    async updateUserDetails(id, userDetailsData) {
-        return this.userService.updateUserDetails({
-            where: { id: Number(id) },
-            data: {
-                first_name: userDetailsData.first_name,
-                last_name: userDetailsData.last_name,
-                email: userDetailsData.email,
-                phone_number: userDetailsData.phone_number,
-                address_1: userDetailsData.address_1,
-                address_2: userDetailsData.address_2,
-                city: userDetailsData.city,
-                postal_code: userDetailsData.postal_code,
-            }
-        });
+    async updateUserDetails(id, updateUserDetailsDto) {
+        const updatedUserDetails = await this.userService.updateUserDetails({ where: { id: Number(id) },
+            data: { ...updateUserDetailsDto } });
+        const response = {
+            status: 'Success',
+            statusCode: common_2.HttpStatus.CREATED,
+            statusText: `Userdetails for user with ID: ${id} updated successfully.`,
+            data: updatedUserDetails,
+        };
+        return response;
     }
     async updatePassword(id, passwordData) {
-        const hashedPassword = await (0, password_utils_1.hashPassword)(passwordData.password);
-        return this.userService.updatePassword({
-            where: { id: Number(id) },
-            data: {
-                hash: hashedPassword
-            }
-        });
+        await this.userService.updatePassword({ id: Number(id), password: passwordData.password });
+        const response = {
+            status: 'Success',
+            statusCode: common_2.HttpStatus.CREATED,
+            statusText: `The password for user with ID: '${id}' was updated successfully.`,
+        };
+        return response;
     }
     async deleteUser(id) {
         await this.userService.deleteUserDetails({ id: Number(id) });
         await this.userService.deletePassword({ id: Number(id) });
         await this.userService.deleteUser({ id: Number(id) });
-    }
-    async getUser(id) {
-        return this.userService.user({ id: Number(id) });
+        const response = {
+            status: 'Success',
+            statusCode: common_2.HttpStatus.CREATED,
+            statusText: `The password for user with ID: '${id}' was deleted successfully.`,
+        };
+        return response;
     }
     async getUserDetails(id) {
-        return this.userService.user_details({ id: Number(id) });
+        const userDetails = await this.userService.user_details({ id: Number(id) });
+        const response = {
+            status: 'Success',
+            statusCode: common_2.HttpStatus.CREATED,
+            statusText: `Userdetails for user with ID: ${id} was retrived successfully.`,
+            data: userDetails,
+        };
+        return response;
     }
-    async getPassword(id) {
-        return this.userService.password({ id: Number(id) });
+    async getUser(data, context) {
+        const email = data;
+        try {
+            const userDetails = await this.userService.user_details({ email: email });
+            if (userDetails) {
+                const id = userDetails.id;
+                const user = await this.userService.user({ id: Number(id) });
+                const role = user.role;
+                const responseArray = [{ id: id, role: role, email: email }];
+                return responseArray;
+            }
+        }
+        catch (error) {
+            console.error(error);
+            return { error: 'Failed to get user information.' };
+        }
     }
 };
 exports.UserController = UserController;
@@ -101,7 +112,7 @@ __decorate([
     (0, common_1.Post)('createUser'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [allUser_dto_1.AllUserDto]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "createUser", null);
 __decorate([
@@ -117,7 +128,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, updateUserDetails_dto_1.UpdateUserDetailsDto]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "updateUserDetails", null);
 __decorate([
@@ -136,13 +147,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "deleteUser", null);
 __decorate([
-    (0, common_1.Get)('user/:id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], UserController.prototype, "getUser", null);
-__decorate([
     (0, common_1.Get)('user/:id/details'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -150,12 +154,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getUserDetails", null);
 __decorate([
-    (0, common_1.Get)('user/:id/password'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, microservices_1.MessagePattern)({ cmd: 'get-user' }),
+    __param(0, (0, microservices_1.Payload)()),
+    __param(1, (0, microservices_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, microservices_1.RmqContext]),
     __metadata("design:returntype", Promise)
-], UserController.prototype, "getPassword", null);
+], UserController.prototype, "getUser", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [user_service_1.UserService])

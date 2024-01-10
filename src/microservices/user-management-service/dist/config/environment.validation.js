@@ -17,85 +17,85 @@ class TestEnvironmentVariables {
 __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
-], TestEnvironmentVariables.prototype, "DATABASE_PORT", void 0);
+], TestEnvironmentVariables.prototype, "UMS_DATABASE_PORT", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
-], TestEnvironmentVariables.prototype, "APP_PORT", void 0);
+], TestEnvironmentVariables.prototype, "UMS_APP_PORT", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], TestEnvironmentVariables.prototype, "DATABASE_CONTAINER_NAME", void 0);
+], TestEnvironmentVariables.prototype, "UMS_DATABASE_CONTAINER_NAME", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], TestEnvironmentVariables.prototype, "DATABASE_ROOT_PASSWORD", void 0);
+], TestEnvironmentVariables.prototype, "UMS_DATABASE_ROOT_PASSWORD", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], TestEnvironmentVariables.prototype, "DATABASE_NAME", void 0);
+], TestEnvironmentVariables.prototype, "UMS_DATABASE_NAME", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], TestEnvironmentVariables.prototype, "DATABASE_USER", void 0);
+], TestEnvironmentVariables.prototype, "UMS_DATABASE_USER", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], TestEnvironmentVariables.prototype, "DATABASE_PASSWORD", void 0);
+], TestEnvironmentVariables.prototype, "UMS_DATABASE_PASSWORD", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], TestEnvironmentVariables.prototype, "DATABASE_URL", void 0);
+], TestEnvironmentVariables.prototype, "UMS_DATABASE_URL", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], TestEnvironmentVariables.prototype, "NODE_ENV", void 0);
+], TestEnvironmentVariables.prototype, "UMS_NODE_ENV", void 0);
 class ProductionEnvironmentVariables {
 }
 __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
-], ProductionEnvironmentVariables.prototype, "DATABASE_PORT", void 0);
+], ProductionEnvironmentVariables.prototype, "UMS_DATABASE_PORT", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
-], ProductionEnvironmentVariables.prototype, "APP_PORT", void 0);
+], ProductionEnvironmentVariables.prototype, "UMS_APP_PORT", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], ProductionEnvironmentVariables.prototype, "DATABASE_CONTAINER_NAME", void 0);
+], ProductionEnvironmentVariables.prototype, "UMS_DATABASE_CONTAINER_NAME", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], ProductionEnvironmentVariables.prototype, "APP_CONTAINER_NAME", void 0);
+], ProductionEnvironmentVariables.prototype, "UMS_APP_CONTAINER_NAME", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
-], ProductionEnvironmentVariables.prototype, "DATABASE_CONN_RETRY_DELAY", void 0);
+], ProductionEnvironmentVariables.prototype, "UMS_DATABASE_CONN_RETRY_DELAY", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], ProductionEnvironmentVariables.prototype, "DATABASE_ROOT_PASSWORD", void 0);
+], ProductionEnvironmentVariables.prototype, "UMS_DATABASE_ROOT_PASSWORD", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], ProductionEnvironmentVariables.prototype, "DATABASE_NAME", void 0);
+], ProductionEnvironmentVariables.prototype, "UMS_DATABASE_NAME", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], ProductionEnvironmentVariables.prototype, "DATABASE_USER", void 0);
+], ProductionEnvironmentVariables.prototype, "UMS_DATABASE_USER", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], ProductionEnvironmentVariables.prototype, "DATABASE_PASSWORD", void 0);
+], ProductionEnvironmentVariables.prototype, "UMS_DATABASE_PASSWORD", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], ProductionEnvironmentVariables.prototype, "DATABASE_URL", void 0);
+], ProductionEnvironmentVariables.prototype, "UMS_DATABASE_URL", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], ProductionEnvironmentVariables.prototype, "NODE_ENV", void 0);
+], ProductionEnvironmentVariables.prototype, "UMS_NODE_ENV", void 0);
 function validateTestEnvFile(config) {
     const validatedTestConfig = (0, class_transformer_1.plainToInstance)(TestEnvironmentVariables, config, { enableImplicitConversion: true });
     const errors = (0, class_validator_1.validateSync)(validatedTestConfig, { skipMissingProperties: false });

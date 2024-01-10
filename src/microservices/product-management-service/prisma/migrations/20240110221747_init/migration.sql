@@ -31,10 +31,7 @@ CREATE TABLE `inventory` (
 -- CreateTable
 CREATE TABLE `product` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-<<<<<<<< HEAD:src/microservices/product-management-service/prisma/migrations/20240108120715_init/migration.sql
-========
     `discount_id` INTEGER NULL,
->>>>>>>> 0fa245beaad95e033c2f4a57debcce02348d9fb6:src/microservices/product-management-service/prisma/migrations/20240106200436_pms_db/migration.sql
     `name` VARCHAR(191) NOT NULL,
     `desc` VARCHAR(191) NOT NULL,
     `price` DOUBLE NOT NULL,
@@ -45,8 +42,6 @@ CREATE TABLE `product` (
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-<<<<<<<< HEAD:src/microservices/product-management-service/prisma/migrations/20240108120715_init/migration.sql
-========
 
 -- CreateTable
 CREATE TABLE `category` (
@@ -83,4 +78,3 @@ ALTER TABLE `product_category` ADD CONSTRAINT `product_category_product_id_fkey`
 
 -- AddForeignKey
 ALTER TABLE `product_category` ADD CONSTRAINT `product_category_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
->>>>>>>> 0fa245beaad95e033c2f4a57debcce02348d9fb6:src/microservices/product-management-service/prisma/migrations/20240106200436_pms_db/migration.sql
