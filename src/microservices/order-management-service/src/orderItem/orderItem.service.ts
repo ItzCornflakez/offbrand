@@ -1,10 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { OrderItem, Prisma } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
+import { lastValueFrom } from 'rxjs';
+import { OrderItemDto } from 'src/common/dto';
 
 @Injectable()
 export class OrderItemService {
-    constructor(private prisma: PrismaService) {}
+    constructor(private prisma: PrismaService,
+      @Inject('CREATE_ORDERITEM_SERVICE') private readonly client: ClientProxy) {}
 
     async orderItem(
         OrderItemItemWhereUniqueInput: Prisma.OrderItemWhereUniqueInput,
@@ -31,10 +35,28 @@ export class OrderItemService {
         });
     }
 
-    async createOrderItem(data: Prisma.OrderItemCreateInput): Promise<OrderItem> {
-        return this.prisma.orderItem.create({
+    async createOrderItem(data: OrderItemDto): Promise<OrderItem> {
+
+      let createdOrderItem: any
+      this.prisma.$transaction(async (transactionClient) => {
+
+        const createdOrderItem = await transactionClient.orderItem.create({
           data,
-        });
+        })
+
+        const result = this.client.send({ cmd: 'create-orderitem' }, {product_id: createdOrderItem.product_id, color: createdOrderItem.color, quantity: createdOrderItem.quantity, })
+        const newInventoryStatus = await lastValueFrom(result)
+
+        if(!newInventoryStatus){
+          throw new Error("Not enough inventory")
+        }
+
+      }
+      
+      );
+
+      return createdOrderItem
+      
     }
 
     async updateOrderItem(params: {

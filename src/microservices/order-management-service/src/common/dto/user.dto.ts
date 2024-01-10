@@ -1,2 +1,2 @@
-export interface UserDto {
+export class UserDto {
 }

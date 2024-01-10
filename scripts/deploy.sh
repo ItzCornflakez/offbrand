@@ -11,4 +11,8 @@ cd ../../product-management-service/scripts
 
 ./deploy.sh
 
+cd ../../user-management-service/scripts 
+
+./deploy.sh
+
 #TODO Implement the file xd

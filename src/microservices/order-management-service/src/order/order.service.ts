@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { Order, User, Prisma, Product} from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
+import { OrderDto } from 'src/common/dto';
 
 @Injectable()
 export class OrderService {
@@ -22,6 +24,7 @@ export class OrderService {
         orderBy?: Prisma.OrderOrderByWithRelationInput;
       }): Promise<Order[]> {
         const { skip, take, cursor, where, orderBy } = params;
+        console.log(params)
         return this.prisma.order.findMany({
           skip,
           take,
@@ -31,7 +34,7 @@ export class OrderService {
         });
     }
 
-    async createOrder(data: Prisma.OrderCreateInput): Promise<Order> {
+    async createOrder(data: OrderDto): Promise<Order> {
         return this.prisma.order.create({
           data,
         });
@@ -61,8 +64,14 @@ export class OrderService {
     }
     
     async deleteOrder(where: Prisma.OrderWhereUniqueInput): Promise<Order> {
-    return this.prisma.order.delete({
-        where,
-    });
+      return this.prisma.order.delete({
+          where,
+      });
+    }
+
+    async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
+      return this.prisma.user.delete({
+          where,
+      });
     }
 }

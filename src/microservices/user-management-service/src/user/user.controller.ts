@@ -165,17 +165,17 @@ export class UserController {
 
   @MessagePattern({ cmd: 'get-user' })
   async getUser(@Payload() data: any, @Ctx() context: RmqContext) {
-    const email = data.email;
-
+    const email = data;
     try {
-      var id = (await this.userService.user_details({ email: email })).id;
-      var role =  (await this.userService.user({ id: Number(id) })).role;
-      const user = await this.userService.getUserByEmail(email);
-      
-      const responseArray = user ? [{ id: id, role: role, email: email }] : [];
-      
-      // Send the response back to the queue
-      return responseArray;
+      const userDetails = await this.userService.user_details({ email: email });
+      if (userDetails) {
+        const id = userDetails.id;
+        const user = await this.userService.user({ id: Number(id) });
+        const role = user.role;
+  
+        const responseArray = [{ id: id, role: role, email: email }];
+        return responseArray;
+      }
     } catch (error) {
       // Handle errors and send an appropriate response
       console.error(error);

@@ -3,9 +3,9 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
-  console.log("Priunt")
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
     new ValidationPipe({
@@ -13,6 +13,21 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      noAck: false,
+      urls: [`amqp://user:password@rabbitmq:5672`],
+      ...app.get(ConfigService).get('rabbitmqCredentials'),
+      queue: 'auth-queue',
+      queueOptions: {
+        durable: false,
+      },
+    },
+    
+  });
+  await app.startAllMicroservices();
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('APP_PORT');

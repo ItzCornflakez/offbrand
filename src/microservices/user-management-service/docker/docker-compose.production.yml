@@ -15,7 +15,7 @@ services:
       - MYSQL_PASSWORD=${DATABASE_PASSWORD}
       - MYSQL_TCP_PORT=${DATABASE_PORT}
     networks:
-      - ums_production_network
+      - production_network
     volumes:
       - ums_mysql_data:/var/lib/mysql
     
@@ -31,11 +31,11 @@ services:
     env_file:
       - .env
     networks:
-      - ums_production_network
+      - production_network
     
 volumes:
   ums_mysql_data:
     driver: local
 
 networks:
-  ums_production_network:
+  production_network:

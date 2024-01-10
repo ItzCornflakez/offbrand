@@ -1,0 +1,56 @@
+version: "3.8"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    volumes:
+      - /var/lib/rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    env_file:
+      - .env.production
+
+    networks:
+      - production_network
+
+  auth-production-database:
+    image: mysql_image:latest
+    container_name: ${DATABASE_CONTAINER_NAME}
+    restart: always
+    ports:
+      - ${DATABASE_PORT}:${DATABASE_PORT}
+    env_file:
+      - .env
+    environment:
+      - MYSQL_TCP_PORT=${DATABASE_PORT}
+      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DATABASE_NAME}
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+    networks:
+      - production_network
+    volumes:
+      - auth_mysql_data:/var/lib/mysql
+    
+  auth-production-app:
+    image: auth_prod_app:latest
+    container_name: ${APP_CONTAINER_NAME}
+    restart: no
+    entrypoint: ["sh", "-c", "while ! npm run start:migrate:prod; do echo 'The database is not ready yet! Retrying after a delay...'; sleep ${DATABASE_CONN_RETRY_DELAY:- 2}; done"]
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    depends_on:
+      - auth-production-database
+    env_file:
+      - .env
+    networks:
+      - production_network
+    
+volumes:
+  auth_mysql_data:
+    driver: local
+
+networks:
+  production_network:

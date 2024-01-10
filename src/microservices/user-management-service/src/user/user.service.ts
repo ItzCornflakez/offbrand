@@ -38,6 +38,14 @@ export class UserService {
     });
   }
 
+  async getUserDetails(
+    userDetailsWhereInput: Prisma.User_DetailsWhereInput,
+  ): Promise<User_Details | null> {
+    return this.prisma.user_Details.findFirst({
+      where: userDetailsWhereInput,
+    });
+  }
+
   async users(params: {
     skip?: number;
     take?: number;

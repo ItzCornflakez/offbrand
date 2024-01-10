@@ -16,7 +16,7 @@ constructor(private prisma: PrismaService,
         data,
         });
 
-        const result = await this.client.send({cmd: 'create-product' }, {product_id: createdProduct.id});
+        const result = await this.client.send({cmd: 'create-product' }, {});
         await result.subscribe();
 
         return createdProduct;

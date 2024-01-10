@@ -8,4 +8,8 @@ cd ../../product-management-service/scripts
 
 ./migrate_schema.sh
 
+cd ../../user-management-service/scripts 
+
+./migrate_schema.sh
+
 #TODO Implement the file xd

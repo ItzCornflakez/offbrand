@@ -1,2 +1,2 @@
-export interface ProductDto {
+export class ProductDto {
 }
