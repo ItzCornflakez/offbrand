@@ -5,7 +5,6 @@ import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  console.log("Priunt")
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
     new ValidationPipe({
