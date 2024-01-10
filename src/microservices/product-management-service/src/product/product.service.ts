@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -15,10 +16,22 @@ import {
   GetProductsQueryParamsDto,
 } from './dto/queryParams.dto';
 import { EditProductBodyDto } from './dto/editProductBody.dto';
+import { ConfigService } from '@nestjs/config';
+import { ClientProxy } from '@nestjs/microservices';
+import { CreateProductVariantBodyDto } from './dto/createProductVariant.dto';
 
 @Injectable()
 export class ProductService {
-  constructor(private prismaService: PrismaService) {}
+  private rabbitmqEnabled: boolean;
+  constructor(
+    private prismaService: PrismaService,
+    private configService: ConfigService,
+    @Inject('PRODUCT_SERVICE') private readonly client: ClientProxy,
+  ) {
+    this.rabbitmqEnabled = this.configService.get<boolean>(
+      'PMS_RABBITMQ_ENABLED',
+    );
+  }
 
   async createNewProduct(newProductDto: CreateProductBodyDto) {
     try {
@@ -55,12 +68,34 @@ export class ProductService {
         },
       });
 
+      if (this.rabbitmqEnabled) {
+        const catalogProduct = {
+          name: newProductDto.name,
+          category_id: newProductDto.category_id,
+          discount_id: newProductDto.discount_id,
+          desc: newProductDto.desc,
+          price: newProductDto.price,
+          picture: newProductDto.picture,
+          variants: newProductDto.inventories.map((inventory) => {
+            const variant = new CreateProductVariantBodyDto();
+            variant.color = inventory.color;
+            return variant;
+          }),
+        };
+
+        const result = await this.client.send(
+          { cmd: 'create-product' },
+          catalogProduct,
+        );
+        await result.subscribe();
+      }
+
       return newProduct;
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === 'P2002') {
           throw new ConflictException(
-            'Unable to create the new product due to a conflict: two or more of the provided inventories share the same color, or two or more categories have the same idea. Each inventory must have a unique color for the product, and each category must be distinct.',
+            'Unable to create the new product due to a conflict: two or more of the provided inventories share the same color, or two or more categories have the same id. Each inventory must have a unique color for the product, and each category must be distinct.',
             { cause: e },
           );
         } else {
@@ -105,6 +140,17 @@ export class ProductService {
           },
         },
       });
+
+      if (this.rabbitmqEnabled) {
+        const newVariant = new CreateProductVariantBodyDto();
+        newVariant.color = createInventoryBodyDto.color;
+
+        const result = await this.client.send(
+          { cmd: 'create-variant' },
+          { productId, newVariant },
+        );
+        await result.subscribe();
+      }
 
       return updatedProduct;
     } catch (e) {
@@ -406,6 +452,14 @@ export class ProductService {
         }),
       ]);
 
+      if (this.rabbitmqEnabled) {
+        const result = await this.client.send(
+          { cmd: 'update-product' },
+          editProductBodyDto,
+        );
+        await result.subscribe();
+      }
+
       return updatedProduct;
     } catch (e) {
       if (e instanceof NotFoundException) {
@@ -465,6 +519,14 @@ export class ProductService {
           },
         }),
       ]);
+
+      if (this.rabbitmqEnabled) {
+        const result = await this.client.send(
+          { cmd: 'add-category-product' },
+          { productId, categoryId },
+        );
+        await result.subscribe();
+      }
 
       return updatedProduct;
     } catch (e) {
@@ -539,7 +601,7 @@ export class ProductService {
         );
       }
 
-      await this.prismaService.$transaction([
+      const updatedProduct = await this.prismaService.$transaction([
         this.prismaService.productCategory.delete({
           where: {
             product_id_category_id: {
@@ -549,6 +611,16 @@ export class ProductService {
           },
         }),
       ]);
+
+      if (this.rabbitmqEnabled) {
+        const result = await this.client.send(
+          { cmd: 'remove-category-product' },
+          { productId, categoryId },
+        );
+        await result.subscribe();
+      }
+
+      return updatedProduct;
     } catch (e) {
       if (e instanceof NotFoundException || e instanceof ConflictException) {
         throw e;
@@ -597,6 +669,14 @@ export class ProductService {
         }),
       ]);
 
+      if (this.rabbitmqEnabled) {
+        const result = await this.client.send(
+          { cmd: 'add-discount-product' },
+          { productId, discountId },
+        );
+        await result.subscribe();
+      }
+
       return updatedProduct;
     } catch (e) {
       if (e instanceof NotFoundException || e instanceof ConflictException) {
@@ -634,6 +714,14 @@ export class ProductService {
           data: { discount_id: null, last_updated_at: new Date() },
         }),
       ]);
+
+      if (this.rabbitmqEnabled) {
+        const result = await this.client.send(
+          { cmd: 'remove-discount-product' },
+          productId,
+        );
+        await result.subscribe();
+      }
 
       return updatedProduct;
     } catch (e) {
@@ -677,6 +765,14 @@ export class ProductService {
           data: { is_deleted: true, last_updated_at: new Date() },
         }),
       ]);
+
+      if (this.rabbitmqEnabled) {
+        const result = await this.client.send(
+          { cmd: 'delete-product' },
+          productId,
+        );
+        await result.subscribe();
+      }
     } catch (e) {
       if (e instanceof NotFoundException || e instanceof ConflictException) {
         throw e;
@@ -718,6 +814,14 @@ export class ProductService {
           data: { is_deleted: false, last_updated_at: new Date() },
         }),
       ]);
+
+      if (this.rabbitmqEnabled) {
+        const result = await this.client.send(
+          { cmd: 'restore-product' },
+          productId,
+        );
+        await result.subscribe();
+      }
     } catch (e) {
       if (e instanceof NotFoundException || e instanceof ConflictException) {
         throw e;

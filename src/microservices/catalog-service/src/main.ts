@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/exception-filters/httpException.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,6 +31,23 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup(`/docs`, app, document);
+
+  const rabbitmqEnabled = configService.get<boolean>('PMS_RABBITMQ_ENABLED');
+  if (rabbitmqEnabled) {
+    app.connectMicroservice<MicroserviceOptions>({
+      transport: Transport.RMQ,
+      options: {
+        noAck: false,
+        urls: [`amqp://user:password@rabbitmq:5672`],
+        ...configService.get('rabbitmqCredentials'),
+        queue: 'product-queue',
+        queueOptions: {
+          durable: false,
+        },
+      },
+    });
+    await app.startAllMicroservices();
+  }
 
   await app.listen(port);
 }

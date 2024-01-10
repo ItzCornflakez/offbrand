@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { plainToInstance } from 'class-transformer';
-import { IsNumber, IsString, validateSync } from 'class-validator';
+import { IsBoolean, IsNumber, IsString, validateSync } from 'class-validator';
 
 //Defines what should be included in the .env.test file
 class TestEnvironmentVariables {
@@ -28,8 +28,11 @@ class TestEnvironmentVariables {
     @IsString()
     PMS_DATABASE_URL: string;
 
+    @IsBoolean()
+    PMS_RABBITMQ_ENABLED: boolean
+
     @IsString()
-    NODE_ENV: string;
+    PMS_NODE_ENV: string;
 }
 
 //Defines what should be included in the .env.production file
@@ -64,8 +67,11 @@ class ProductionEnvironmentVariables{
     @IsString()
     PMS_DATABASE_URL: string;
 
+    @IsBoolean()
+    PMS_RABBITMQ_ENABLED: boolean
+
     @IsString()
-    NODE_ENV: string;
+    PMS_NODE_ENV: string;
 
 }
 

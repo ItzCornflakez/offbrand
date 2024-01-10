@@ -9,6 +9,14 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { CategoryService } from './category.service';
 import { DefaultResponseDto } from 'src/common/dto/defaultResponse.dto';
+import {
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
+import { CreateCategoryDto } from './dto/createCategory.dto';
+import { EditCategoryDto } from './dto/editCategory.dto';
 
 @Controller('categories')
 @ApiTags('categories')
@@ -42,5 +50,61 @@ export class CategoryController {
     };
 
     return response;
+  }
+
+  @MessagePattern({ cmd: 'create-category' })
+  async createCategory(
+    @Payload() createCategoryDto: CreateCategoryDto,
+    @Ctx() context: RmqContext,
+  ) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    await this.categoryService.createCategory(createCategoryDto);
+
+    channel.ack(originalMsg);
+  }
+
+  @MessagePattern({ cmd: 'update-category' })
+  async updateCategory(
+    @Payload()
+    payload: { categoryId: number; editCategoryDto: EditCategoryDto },
+    @Ctx() context: RmqContext,
+  ) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    await this.categoryService.updateCategory(
+      payload.categoryId,
+      payload.editCategoryDto,
+    );
+
+    channel.ack(originalMsg);
+  }
+
+  @MessagePattern({ cmd: 'delete-category' })
+  async deleteCategory(
+    @Payload() categoryId: number,
+    @Ctx() context: RmqContext,
+  ) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    await this.categoryService.deleteCategory(categoryId);
+
+    channel.ack(originalMsg);
+  }
+
+  @MessagePattern({ cmd: 'restore-category' })
+  async restoreCategory(
+    @Payload() categoryId: number,
+    @Ctx() context: RmqContext,
+  ) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    await this.categoryService.restoreCategory(categoryId);
+
+    channel.ack(originalMsg);
   }
 }

@@ -20,6 +20,12 @@ import {
 import { EditInventoryBodyDto } from './dto/editInventoryBody.dto';
 import { ReduceQuantityBodyDto } from './dto/reduceQuantityBody.dto';
 import { IncreaseQuantityBodyDto } from './dto/increaseQuantityBody.dto';
+import {
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
 
 @Controller('inventories')
 @ApiTags('Inventory')
@@ -191,5 +197,30 @@ export class InventoryController {
     };
 
     return response;
+  }
+
+  @MessagePattern({ cmd: 'create-orderItem' })
+  async createOrderItem(
+    @Payload() payload: { productId: number; color: string; quantity: number },
+    @Ctx() context: RmqContext,
+  ) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    try {
+      await this.inventoryService.reduceInventoryByOrders(
+        payload.productId,
+        payload.color,
+        payload.quantity,
+      );
+
+      channel.ack(originalMsg);
+
+      return true;
+    } catch (e) {
+      console.log(e);
+      channel.nack(originalMsg);
+      return false;
+    }
   }
 }

@@ -4,13 +4,27 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateCategoryDto } from './dto/createCategory.dto';
+import { EditCategoryDto } from './dto/editCategory.dto';
 
 @Injectable()
 export class CategoryService {
   constructor(private prismaService: PrismaService) {}
 
   //Endpoint functions
-  async getAllCategories() {}
+  async getAllCategories() {
+    try {
+      const categories = await this.prismaService.category.findMany({
+        where: { is_deleted: true },
+      });
+
+      return categories;
+    } catch (e) {
+      throw new InternalServerErrorException('Could not fetch all categories', {
+        cause: e,
+      });
+    }
+  }
 
   async getCategoryById(categoryId: number) {
     try {
@@ -31,11 +45,46 @@ export class CategoryService {
   }
 
   //RabbitMQ functions
-  async createCategory() {}
+  async createCategory(createCategoryDto: CreateCategoryDto) {
+    try {
+      await this.prismaService.category.create({
+        data: { ...createCategoryDto },
+      });
+    } catch (e) {
+      return e;
+    }
+  }
 
-  async updateCategory() {}
+  async updateCategory(categoryId: number, editCategoryDto: EditCategoryDto) {
+    try {
+      await this.prismaService.category.update({
+        where: { id: categoryId },
+        data: { ...editCategoryDto, last_updated_at: new Date() },
+      });
+    } catch (e) {
+      return e;
+    }
+  }
 
-  async deleteCategory() {}
+  async deleteCategory(categoryId: number) {
+    try {
+      await this.prismaService.category.update({
+        where: { id: categoryId },
+        data: { is_deleted: true, last_updated_at: new Date() },
+      });
+    } catch (e) {
+      return e;
+    }
+  }
 
-  async restoreCategory() {}
+  async restoreCategory(categoryId: number) {
+    try {
+      await this.prismaService.category.update({
+        where: { id: categoryId },
+        data: { is_deleted: false, last_updated_at: new Date() },
+      });
+    } catch (e) {
+      return e;
+    }
+  }
 }

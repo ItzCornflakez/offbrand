@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  pms-production-database:
+  pms-production-database-isolated:
     image: mysql_image:latest
     container_name: ${PMS_DATABASE_CONTAINER_NAME}
     restart: always
@@ -19,7 +19,7 @@ services:
     volumes:
       - pms_mysql_data_isolated:/var/lib/mysql
     
-  pms-production-app:
+  pms-production-app-isolated:
     image: pms_prod_app:latest
     container_name: ${PMS_APP_CONTAINER_NAME}
     restart: no
@@ -27,7 +27,7 @@ services:
     ports:
       - ${PMS_APP_PORT}:${PMS_APP_PORT}
     depends_on:
-      - pms-production-database
+      - pms-production-database-isolated
     env_file:
       - .env
     networks:

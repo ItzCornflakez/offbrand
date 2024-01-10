@@ -13,7 +13,7 @@ import { VariantModule } from './variants/variants.module';
 
 //Validate the env file
 let validateFunction;
-switch (process.env.NODE_ENV) {
+switch (process.env.CATALOG_NODE_ENV) {
   case 'production':
     validateFunction = validateProductionEnvFile;
     break;
@@ -22,7 +22,7 @@ switch (process.env.NODE_ENV) {
     break;
   default:
     throw new Error(
-      `Unsupported or missing NODE_ENV: ${process.env.NODE_ENV}. Please set NODE_ENV to either 'production' or 'test' in the environment file.`,
+      `Unsupported or missing NODE_ENV: ${process.env.CATALOG_NODE_ENV}. Please set NODE_ENV to either 'production' or 'test' in the environment file.`,
     );
 }
 

@@ -262,7 +262,7 @@ export class ProductController {
     @Param('id', ParseIntPipe) productId: number,
     @Param('categoryId', ParseIntPipe) categoryId: number,
   ): Promise<DefaultResponseDto> {
-    await this.productService.removeProductFromCategoryById(
+    const product = await this.productService.removeProductFromCategoryById(
       productId,
       categoryId,
     );
@@ -271,6 +271,7 @@ export class ProductController {
       status: 'Success',
       statusCode: HttpStatus.OK,
       statusText: `Product: '${productId}' removed from category: '${categoryId}' successfully.`,
+      data: product,
     };
 
     return response;

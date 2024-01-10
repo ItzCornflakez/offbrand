@@ -47,7 +47,7 @@ model Product {
 model Variants{
   id               Int        @id @default(autoincrement())
   color            String?
-  is_out_of_stock  Boolean    
+  is_out_of_stock  Boolean    @default(false)
   is_deleted       Boolean    @default(false)
   created_at       DateTime   @default(now())
   last_updated_at  DateTime   @default(now())

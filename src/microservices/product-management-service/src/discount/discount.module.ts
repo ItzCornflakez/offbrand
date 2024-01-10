@@ -1,9 +1,40 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { DiscountController } from './discount.controller';
 import { DiscountService } from './discount.service';
 
-@Module({
-  controllers: [DiscountController],
-  providers: [DiscountService],
-})
-export class DiscountModule {}
+@Module({})
+export class DiscountModule {
+  static register(): DynamicModule {
+    const imports = [];
+    if (process.env.PMS_RABBITMQ_ENABLED) {
+      imports.push(
+        ClientsModule.registerAsync([
+          {
+            name: 'PRODUCT_SERVICE',
+            imports: [ConfigModule],
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            useFactory: (configService: ConfigService) => ({
+              transport: Transport.RMQ,
+              options: {
+                urls: [`amqp://user:password@rabbitmq:5672`],
+                queue: 'product-queue',
+                queueOptions: {
+                  durable: false,
+                },
+              },
+            }),
+            inject: [ConfigService],
+          },
+        ]),
+      );
+    }
+    return {
+      module: DiscountModule,
+      imports,
+      controllers: [DiscountController],
+      providers: [DiscountService],
+    };
+  }
+}

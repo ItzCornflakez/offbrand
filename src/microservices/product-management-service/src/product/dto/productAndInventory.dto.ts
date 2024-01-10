@@ -7,6 +7,7 @@ import {
   ValidateNested,
   IsOptional,
   IsPositive,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
@@ -20,6 +21,7 @@ export class CreateInventoryBodyDto {
   @ApiProperty({ required: true })
   @IsNotEmpty()
   @IsPositive()
+  @Min(1)
   @IsNumber()
   quantity: number;
 }

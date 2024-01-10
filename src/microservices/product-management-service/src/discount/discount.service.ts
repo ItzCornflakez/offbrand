@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -11,16 +12,36 @@ import {
   GetAllDiscountsQueryParamsDto,
   GetDiscountsQueryParamsDto,
 } from './dto/queryParams.dto';
+import { ConfigService } from '@nestjs/config';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class DiscountService {
-  constructor(private prismaService: PrismaService) {}
+  private rabbitmqEnabled: boolean;
+  constructor(
+    private prismaService: PrismaService,
+    private configService: ConfigService,
+    @Inject('PRODUCT_SERVICE') private readonly client: ClientProxy,
+  ) {
+    this.rabbitmqEnabled = this.configService.get<boolean>(
+      'PMS_RABBITMQ_ENABLED',
+    );
+  }
 
-  async createNewDiscount(newDiscountDto: CreateNewDiscountDto) {
+  async createNewDiscount(createDiscountDto: CreateNewDiscountDto) {
     try {
       const newDiscount = this.prismaService.discount.create({
-        data: { ...newDiscountDto },
+        data: { ...createDiscountDto },
       });
+
+      if (this.rabbitmqEnabled) {
+        const result = await this.client.send(
+          { cmd: 'create-discount' },
+          createDiscountDto,
+        );
+        await result.subscribe();
+      }
+
       return newDiscount;
     } catch (e) {
       throw new InternalServerErrorException(
@@ -187,6 +208,14 @@ export class DiscountService {
         );
       }
 
+      if (this.rabbitmqEnabled) {
+        const result = await this.client.send(
+          { cmd: 'update-discount' },
+          { discountId, editDiscountDto },
+        );
+        await result.subscribe();
+      }
+
       const updatedDiscount = await this.prismaService.discount.update({
         where: { id: discountId },
         data: { ...editDiscountDto, last_updated_at: new Date() },
@@ -226,6 +255,14 @@ export class DiscountService {
         where: { id: discountId },
         data: { is_deleted: true, last_updated_at: new Date() },
       });
+
+      if (this.rabbitmqEnabled) {
+        const result = await this.client.send(
+          { cmd: 'delete-discount' },
+          discountId,
+        );
+        await result.subscribe();
+      }
     } catch (e) {
       if (e instanceof NotFoundException || e instanceof ConflictException) {
         throw e;
@@ -260,6 +297,14 @@ export class DiscountService {
         where: { id: discountId },
         data: { is_deleted: false, last_updated_at: new Date() },
       });
+
+      if (this.rabbitmqEnabled) {
+        const result = await this.client.send(
+          { cmd: 'restore-discount' },
+          discountId,
+        );
+        await result.subscribe();
+      }
     } catch (e) {
       if (e instanceof NotFoundException || e instanceof ConflictException) {
         throw e;
@@ -294,6 +339,14 @@ export class DiscountService {
         where: { id: discountId },
         data: { is_active: true, last_updated_at: new Date() },
       });
+
+      if (this.rabbitmqEnabled) {
+        const result = await this.client.send(
+          { cmd: 'activate-discount' },
+          discountId,
+        );
+        await result.subscribe();
+      }
 
       return activatedDiscount;
     } catch (e) {
@@ -330,6 +383,14 @@ export class DiscountService {
         where: { id: discountId },
         data: { is_active: false, last_updated_at: new Date() },
       });
+
+      if (this.rabbitmqEnabled) {
+        const result = await this.client.send(
+          { cmd: 'inactivate-discount' },
+          discountId,
+        );
+        await result.subscribe();
+      }
 
       return inactivatedDiscount;
     } catch (e) {

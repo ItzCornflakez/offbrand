@@ -30,10 +30,10 @@ export class DiscountController {
   @Version('1')
   @ApiOperation({ summary: 'Create a discount' })
   async createNewDiscount(
-    @Body() newDiscountDto: CreateNewDiscountDto,
+    @Body() createDiscountDto: CreateNewDiscountDto,
   ): Promise<DefaultResponseDto> {
     const newDiscount =
-      await this.discountService.createNewDiscount(newDiscountDto);
+      await this.discountService.createNewDiscount(createDiscountDto);
 
     const response: DefaultResponseDto = {
       status: 'Success',
