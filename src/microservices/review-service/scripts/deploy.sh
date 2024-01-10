@@ -19,7 +19,7 @@ error() {
 
 
 deploy_prod_locally() {
-    echo "------------------- Deploying P-M-S_service locally in production mode -------------------"
+    echo "------------------- Deploying R-M-S_service locally in production mode -------------------"
 
     log "Bulding docker images"
 
