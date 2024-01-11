@@ -1,17 +1,14 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import {
-  User as UserModel,
-  User_Details as UserDetailsModel,
-  Password as PasswordModel,
-} from '@prisma/client';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import {hashPassword} from '../utils/password.utils'
 import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
-import { PasswordDto, UserDetailsDto, UserDto } from 'src/common/dto';
 import { AllUserDto } from 'src/common/dto/allUser.dto';
 import { DefaultResponseDto } from 'src/common/dto/defaultResponse.dto';
 import { UpdateUserDetailsDto } from 'src/common/dto/updateUserDetails.dto';
+import { AllUserAdminDto } from 'src/common/dto/allUserAdmin.dto';
+import { Roles } from 'src/common/utils/decorators/roles.decorators';
+import { AuthGuard } from 'src/common/utils/guards/auth.guard';
+import { RoleGuard } from 'src/common/utils/guards/roles.guard';
 
 
 @Controller()
@@ -26,7 +23,26 @@ export class UserController {
     @Body() allUserDto: AllUserDto): Promise<DefaultResponseDto> {
       // Create the user, userDetails and Password tables
       const user = await this.userService.createUser(allUserDto);
+      
 
+      const response: DefaultResponseDto = {
+        status: 'Success',
+        statusCode: HttpStatus.CREATED,
+        statusText: 'User created successfully.',
+        data: user,
+      };
+  
+      return response;
+  }
+
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Post('createUser/admin')
+  async createUserAdmin(
+    @Body() allUserDto: AllUserAdminDto): Promise<DefaultResponseDto> {
+      // Create the user, userDetails and Password tables
+      const user = await this.userService.createUser(allUserDto);
+      
 
       const response: DefaultResponseDto = {
         status: 'Success',
@@ -135,6 +151,8 @@ export class UserController {
   async getUser(@Payload() data: any, @Ctx() context: RmqContext) {
     const email = data;
     try {
+      const channel = context.getChannelRef();
+      const originalMsg = context.getMessage();
       const userDetails = await this.userService.user_details({ email: email });
       if (userDetails) {
         const id = userDetails.id;
@@ -142,6 +160,8 @@ export class UserController {
         const role = user.role;
 
         const responseArray = [{ id: id, role: role, email: email }];
+
+        channel.ack(originalMsg);
         return responseArray;
       }
     } catch (error) {

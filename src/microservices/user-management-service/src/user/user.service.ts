@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, InternalServerErrorException, UseGuards } from '@nestjs/common';
 import { User, User_Details, Prisma, Password } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ClientProxy } from '@nestjs/microservices';
@@ -7,11 +7,17 @@ import { AllUserDto } from 'src/common/dto/allUser.dto';
 import { hashPassword } from 'src/utils/password.utils';
 import { throwError } from 'rxjs';
 import { UpdateUserDetailsDto } from 'src/common/dto/updateUserDetails.dto';
+import { AllUserAdminDto } from 'src/common/dto/allUserAdmin.dto';
+
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService ,
-  @Inject('USER_SERVICE') private readonly client: ClientProxy) {}
+  constructor(
+    private prisma: PrismaService ,
+    @Inject('USER_SERVICE')
+    private readonly client: ClientProxy,
+    @Inject('USER_SERVICE_RMS') 
+    private readonly rmsClient: ClientProxy,) {}
 
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
@@ -89,6 +95,65 @@ export class UserService {
 
   async createUser(allUserDto: AllUserDto ) {
 
+    try{
+      const createdUser = this.prisma.$transaction(async (transactionClient) => {
+        
+        const user = await transactionClient.user.create({data: {role: 'user'}});
+
+        //Make the first created user an admin (for demonstration purposes etc...) 
+        if (user.id === 1){
+          await transactionClient.user.update({where: {id: 1}, data:{role: 'admin'}})
+        }
+
+        let userDetailsObject: UserDetailsDto = {
+          userId: user.id,
+          first_name: allUserDto.first_name,
+          last_name: allUserDto.last_name,
+          email: allUserDto.email,
+          phone_number: allUserDto.phone_number,
+          address_1: allUserDto.address_1,
+          address_2: allUserDto.address_2,
+          city: allUserDto.city,
+          postal_code: allUserDto.postal_code
+        }
+        
+        const hashedPassword = await hashPassword(allUserDto.password);
+        let passwordObject: PasswordDto = {
+          userId: user.id,
+          hash: hashedPassword
+        };
+        const createdPassword = await transactionClient.password.create({data: passwordObject})
+
+        try{
+          const createdUserDetails = await transactionClient.user_Details.create({data: userDetailsObject})
+        } catch (e) {
+          throw new ConflictException("Email already exists")      
+        }
+
+        const result = await this.client.send(
+          { cmd: 'create-user' }, {},
+        );
+        await result.subscribe()
+
+        //Send to reviewMicroService
+        /*
+        const rmsResult = await this.rmsClient.send(
+        { cmd: 'create-user' },{},
+        );
+        await rmsResult.subscribe();
+        */
+    
+        return createdUser
+      });
+    } catch (e) {
+      if (e instanceof Error) {
+        throw new InternalServerErrorException(e.message);
+      }
+    }
+  }
+
+  async createUserAdmin(allUserDto: AllUserAdminDto ) {
+
     let userObject: UserDto
     this.prisma.$transaction(async (transactionClient) => {
 
@@ -123,10 +188,21 @@ export class UserService {
       } catch (e) {
         throw new ConflictException("Email already exists")      }
 
-      const result = await this.client.send({ cmd: 'create-user' }, {})
-      result.subscribe()
+      
+      const result = await this.client.send(
+        { cmd: 'create-user' },
+        {},
+        );
+      await result.subscribe()
     }
     );
+
+    //Send to reviewMicroService
+    const rmsResult = await this.rmsClient.send(
+      { cmd: 'create-user' },
+      {},
+    );
+    await rmsResult.subscribe();
 
     return userObject
 
@@ -169,8 +245,11 @@ export class UserService {
       where,
     });
 
-    const result = this.client.send({ cmd: 'delete-user' }, { id: deletedUser.id })
+    const result = this.client.send({ cmd: 'delete-user' }, deletedUser.id )
     result.subscribe()
+
+    const rmsResult = this.rmsClient.send({ cmd: 'delete-user' }, deletedUser.id )
+    rmsResult.subscribe()
   }
 
   async deleteUserDetails(where: Prisma.User_DetailsWhereUniqueInput): Promise<User_Details> {

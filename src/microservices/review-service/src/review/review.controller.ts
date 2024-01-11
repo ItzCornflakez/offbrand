@@ -74,23 +74,39 @@ export class ReviewController {
 
   @MessagePattern({cmd: 'create-user'})
   async userCreated(@Ctx() context: RmqContext) {
-    this.reviewService.createUser({
-    })
+    console.log('In RMS create user')
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    await this.reviewService.createUser({})
+
+    channel.ack(originalMsg);
         
   }
-
+  
   @MessagePattern({cmd: 'create-product'})
   async productCreated(@Ctx() context: RmqContext) {
-    this.reviewService.createProduct({
-    })
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    await this.reviewService.createProduct({})
         
+    channel.ack(originalMsg);
   }
 
+
   @MessagePattern({cmd: 'delete-user'})
-  async userDeleted(@Payload() id: any, @Ctx() context: RmqContext) {
-    this.reviewService.deleteUser({id: id})
-        
-  }
+  async userDeleted(@Payload() id: number, @Ctx() context: RmqContext) {
+      console.log(id)
+      const channel = context.getChannelRef();
+      const originalMsg = context.getMessage();
+
+      await this.reviewService.deleteUser({id: Number(id)})
+      
+      channel.ack(originalMsg);
+  
+    }
+
 
 }
 

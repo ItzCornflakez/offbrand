@@ -179,7 +179,7 @@ export class OrderController {
 
   @MessagePattern({cmd: 'delete-user'})
   async userDeleted(@Payload() id: any, @Ctx() context: RmqContext) {
-    this.orderService.deleteUser({id: id})
+    this.orderService.deleteUser({id: Number(id)})
         
   }
 }

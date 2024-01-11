@@ -20,12 +20,24 @@ async function bootstrap() {
       noAck: false,
       urls: [`amqp://user:password@rabbitmq:5672`],
       ...app.get(ConfigService).get('rabbitmqCredentials'),
+      queue: 'user-queue',
+      queueOptions: {
+        durable: false,
+      },
+    },
+  });
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      noAck: false,
+      urls: [`amqp://user:password@rabbitmq:5672`],
+      ...app.get(ConfigService).get('rabbitmqCredentials'),
       queue: 'auth-queue',
       queueOptions: {
         durable: false,
       },
     },
-    
   });
   await app.startAllMicroservices();
 
