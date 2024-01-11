@@ -17,10 +17,10 @@ export class OrderItemController {
 
     @Post()
     @Version('1')
-    /*
+    
     @ApiOperation({ summary: `Create a orderItem` })
+    
     @Roles('admin', 'employee', 'user')
-    */
     @UseGuards(AuthGuard, RoleGuard)
     async createOrderItem(
       @Body() dto: OrderItemDto

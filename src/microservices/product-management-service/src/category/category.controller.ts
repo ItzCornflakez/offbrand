@@ -26,10 +26,8 @@ import { RoleGuard } from 'src/common/utils/guards/roles.guard';
 import { Roles } from 'src/common/utils/decorators/roles.decorators';
 
 @Controller('categories')
-/*
 @Roles('admin')
 @UseGuards(AuthGuard, RoleGuard)
-*/
 @ApiTags('Category')
 export class CategoryController {
   constructor(private categoryService: CategoryService) {}

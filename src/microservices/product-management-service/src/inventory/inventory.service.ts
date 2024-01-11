@@ -413,7 +413,7 @@ export class InventoryService {
         return true;
       });
     } catch (e) {
-      throw e;
+      return e;
     }
   }
 }

@@ -29,10 +29,8 @@ import { RoleGuard } from 'src/common/utils/guards/roles.guard';
 import { Roles } from 'src/common/utils/decorators/roles.decorators';
 
 @Controller('products')
-/*
 @Roles('admin')
 @UseGuards(AuthGuard, RoleGuard)
-*/
 @ApiTags('Products')
 export class ProductController {
   constructor(private productService: ProductService) {}

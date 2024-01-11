@@ -121,8 +121,10 @@ export class UserService {
       try{
         const createdUserDetails = await transactionClient.user_Details.create({data: userDetailsObject})
       } catch (e) {
-        throw new ConflictException("Email already exists")      }
+        throw new ConflictException("Email already exists")      
+      }
 
+      console.log('Before create user');
       const result = await this.client.send({ cmd: 'create-user' }, {})
       result.subscribe()
     }

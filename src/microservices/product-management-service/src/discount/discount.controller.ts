@@ -26,10 +26,8 @@ import { AuthGuard } from 'src/common/utils/guards/auth.guard';
 import { RoleGuard } from 'src/common/utils/guards/roles.guard';
 
 @Controller('discounts')
-/*
 @Roles('admin')
 @UseGuards(AuthGuard, RoleGuard)
-*/
 @ApiTags('Discount')
 export class DiscountController {
   constructor(private discountService: DiscountService) {}

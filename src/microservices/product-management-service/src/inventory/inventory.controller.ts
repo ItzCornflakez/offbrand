@@ -32,10 +32,9 @@ import { AuthGuard } from 'src/common/utils/guards/auth.guard';
 import { RoleGuard } from 'src/common/utils/guards/roles.guard';
 
 @Controller('inventories')
-/*
+
 @Roles('admin')
 @UseGuards(AuthGuard, RoleGuard)
-*/
 @ApiTags('Inventory')
 export class InventoryController {
   constructor(private inventoryService: InventoryService) {}
@@ -207,15 +206,15 @@ export class InventoryController {
     return response;
   }
 
-  @MessagePattern({ cmd: 'create-orderItem' })
+  @MessagePattern({ cmd: 'create-orderitem' })
   async createOrderItem(
     @Payload() payload: { productId: number; color: string; quantity: number },
     @Ctx() context: RmqContext,
   ) {
     console.log('In create Order item');
-    console.log('product_id');
-    console.log('In create Order item');
-    console.log('In create Order item');
+    console.log('product_id', payload.productId);
+    console.log('color', payload.color);
+    console.log('quantity', payload.quantity);
 
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
@@ -231,7 +230,7 @@ export class InventoryController {
 
       return true;
     } catch (e) {
-      console.log(e);
+      console.log('Error occurs');
       channel.nack(originalMsg);
       return false;
     }

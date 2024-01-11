@@ -172,6 +172,7 @@ export class OrderController {
 
   @MessagePattern({cmd: 'create-user'})
   async userCreated(@Ctx() context: RmqContext) {
+    console.log('In create User');
     this.orderService.createUser({
     })
         

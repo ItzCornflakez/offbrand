@@ -44,7 +44,7 @@ export class OrderItemService {
           data,
         })
 
-        const result = this.client.send({ cmd: 'create-orderitem' }, {product_id: createdOrderItem.product_id, color: createdOrderItem.color, quantity: createdOrderItem.quantity, })
+        const result = this.client.send({ cmd: 'create-orderitem' }, {productId: createdOrderItem.product_id, color: createdOrderItem.color, quantity: createdOrderItem.quantity, })
         const newInventoryStatus = await lastValueFrom(result)
 
         if(!newInventoryStatus){
