@@ -40,7 +40,7 @@ async function bootstrap() {
         noAck: false,
         urls: [`amqp://user:password@rabbitmq:5672`],
         ...configService.get('rabbitmqCredentials'),
-        queue: 'product-queue',
+        queue: 'pms-catalog-product-queue',
         queueOptions: {
           durable: false,
         },

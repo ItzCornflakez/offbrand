@@ -226,6 +226,7 @@ export class ProductService {
         },
       });
     } catch (e) {
+      console.log(e);
       return e;
     }
   }

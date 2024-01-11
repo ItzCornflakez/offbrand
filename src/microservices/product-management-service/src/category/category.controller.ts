@@ -10,6 +10,7 @@ import {
   Patch,
   Version,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/createCategoryBody.dto';
@@ -20,8 +21,13 @@ import {
   GetAllCategoriesQueryParamsDto,
   GetAllDeletedCategoriesQueryParamsDto,
 } from './dto/queryParams.dto';
+import { AuthGuard } from 'src/common/utils/guards/auth.guard';
+import { RoleGuard } from 'src/common/utils/guards/roles.guard';
+import { Roles } from 'src/common/utils/decorators/roles.decorators';
 
 @Controller('categories')
+@Roles('admin')
+@UseGuards(AuthGuard, RoleGuard)
 @ApiTags('Category')
 export class CategoryController {
   constructor(private categoryService: CategoryService) {}

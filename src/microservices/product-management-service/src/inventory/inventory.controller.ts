@@ -8,6 +8,7 @@ import {
   Patch,
   Put,
   Query,
+  UseGuards,
   Version,
 } from '@nestjs/common';
 import { InventoryService } from './inventory.service';
@@ -26,8 +27,13 @@ import {
   Payload,
   RmqContext,
 } from '@nestjs/microservices';
+import { Roles } from 'src/common/utils/decorators/roles.decorators';
+import { AuthGuard } from 'src/common/utils/guards/auth.guard';
+import { RoleGuard } from 'src/common/utils/guards/roles.guard';
 
 @Controller('inventories')
+@Roles('admin')
+@UseGuards(AuthGuard, RoleGuard)
 @ApiTags('Inventory')
 export class InventoryController {
   constructor(private inventoryService: InventoryService) {}
@@ -204,6 +210,11 @@ export class InventoryController {
     @Payload() payload: { productId: number; color: string; quantity: number },
     @Ctx() context: RmqContext,
   ) {
+    console.log('In create Order item');
+    console.log('product_id');
+    console.log('In create Order item');
+    console.log('In create Order item');
+
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 

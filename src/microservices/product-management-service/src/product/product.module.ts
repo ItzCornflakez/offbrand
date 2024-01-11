@@ -12,14 +12,54 @@ export class ProductModule {
       imports.push(
         ClientsModule.registerAsync([
           {
-            name: 'PRODUCT_SERVICE',
+            name: 'PRODUCT_SERVICE_CATALOG',
             imports: [ConfigModule],
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             useFactory: (configService: ConfigService) => ({
               transport: Transport.RMQ,
               options: {
                 urls: [`amqp://user:password@rabbitmq:5672`],
-                queue: 'product-queue',
+                queue: 'pms-catalog-product-queue',
+                queueOptions: {
+                  durable: false,
+                },
+              },
+            }),
+            inject: [ConfigService],
+          },
+        ]),
+      );
+      imports.push(
+        ClientsModule.registerAsync([
+          {
+            name: 'PRODUCT_SERVICE_OMS',
+            imports: [ConfigModule],
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            useFactory: (configService: ConfigService) => ({
+              transport: Transport.RMQ,
+              options: {
+                urls: [`amqp://user:password@rabbitmq:5672`],
+                queue: 'pms-oms-product-queue',
+                queueOptions: {
+                  durable: false,
+                },
+              },
+            }),
+            inject: [ConfigService],
+          },
+        ]),
+      );
+      imports.push(
+        ClientsModule.registerAsync([
+          {
+            name: 'VERIFY_TOKEN_SERVICE',
+            imports: [ConfigModule],
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            useFactory: (configService: ConfigService) => ({
+              transport: Transport.RMQ,
+              options: {
+                urls: [`amqp://user:password@rabbitmq:5672`],
+                queue: 'verify-token-queue',
                 queueOptions: {
                   durable: false,
                 },

@@ -21,12 +21,11 @@ async function bootstrap() {
       noAck: false,
       urls: [`amqp://user:password@rabbitmq:5672`],
       ...app.get(ConfigService).get('rabbitmqCredentials'),
-      queue: 'product-queue',
+      queue: 'pms-oms-product-queue',
       queueOptions: {
         durable: false,
       },
     },
-    
   });
 
   app.connectMicroservice<MicroserviceOptions>({
@@ -40,7 +39,6 @@ async function bootstrap() {
         durable: false,
       },
     },
-    
   });
   
   await app.startAllMicroservices();

@@ -39,8 +39,8 @@ async function bootstrap() {
       options: {
         noAck: false,
         urls: [`amqp://user:password@rabbitmq:5672`],
-        ...configService.get('rabbitmqCredentials'),
-        queue: 'product-queue',
+        ...app.get(ConfigService).get('rabbitmqCredentials'),
+        queue: 'create-orderItem-queue',
         queueOptions: {
           durable: false,
         },
@@ -52,8 +52,8 @@ async function bootstrap() {
       options: {
         noAck: false,
         urls: [`amqp://user:password@rabbitmq:5672`],
-        ...configService.get('rabbitmqCredentials'),
-        queue: 'create-orderitem-queue',
+        ...app.get(ConfigService).get('rabbitmqCredentials'),
+        queue: 'user-queue',
         queueOptions: {
           durable: false,
         },

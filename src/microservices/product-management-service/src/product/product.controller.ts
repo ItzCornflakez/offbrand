@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   Version,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -23,8 +24,13 @@ import {
   GetProductsQueryParamsDto,
 } from './dto/queryParams.dto';
 import { EditProductBodyDto } from './dto/editProductBody.dto';
+import { AuthGuard } from 'src/common/utils/guards/auth.guard';
+import { RoleGuard } from 'src/common/utils/guards/roles.guard';
+import { Roles } from 'src/common/utils/decorators/roles.decorators';
 
 @Controller('products')
+@Roles('admin')
+@UseGuards(AuthGuard, RoleGuard)
 @ApiTags('Products')
 export class ProductController {
   constructor(private productService: ProductService) {}

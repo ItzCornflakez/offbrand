@@ -26,7 +26,9 @@ export class ProductService {
   constructor(
     private prismaService: PrismaService,
     private configService: ConfigService,
-    @Inject('PRODUCT_SERVICE') private readonly client: ClientProxy,
+    @Inject('PRODUCT_SERVICE_CATALOG')
+    private readonly catalogClient: ClientProxy,
+    @Inject('PRODUCT_SERVICE_OMS') private readonly omsClient: ClientProxy,
   ) {
     this.rabbitmqEnabled = this.configService.get<boolean>(
       'PMS_RABBITMQ_ENABLED',
@@ -104,11 +106,19 @@ export class ProductService {
           }),
         };
 
-        const result = await this.client.send(
+        //Send to catalog microservice
+        const catalogResult = await this.catalogClient.send(
           { cmd: 'create-product' },
           catalogProduct,
         );
-        await result.subscribe();
+        await catalogResult.subscribe();
+
+        //Send to Order micro service
+        const omsResult = await this.omsClient.send(
+          { cmd: 'create-product' },
+          {},
+        );
+        await omsResult.subscribe();
       }
 
       return newProduct;
@@ -154,7 +164,7 @@ export class ProductService {
       if (this.rabbitmqEnabled) {
         const color: string | null = createInventoryBodyDto.color;
 
-        const result = await this.client.send(
+        const result = await this.catalogClient.send(
           { cmd: 'create-variant' },
           { productId, createVariantDto: { color } },
         );
@@ -462,7 +472,7 @@ export class ProductService {
       ]);
 
       if (this.rabbitmqEnabled) {
-        const result = await this.client.send(
+        const result = await this.catalogClient.send(
           { cmd: 'update-product' },
           { productId, editProductDto: editProductBodyDto },
         );
@@ -530,7 +540,7 @@ export class ProductService {
       ]);
 
       if (this.rabbitmqEnabled) {
-        const result = await this.client.send(
+        const result = await this.catalogClient.send(
           { cmd: 'add-category-product' },
           { productId, categoryId },
         );
@@ -622,7 +632,7 @@ export class ProductService {
       ]);
 
       if (this.rabbitmqEnabled) {
-        const result = await this.client.send(
+        const result = await this.catalogClient.send(
           { cmd: 'remove-category-product' },
           { productId, categoryId },
         );
@@ -679,7 +689,7 @@ export class ProductService {
       ]);
 
       if (this.rabbitmqEnabled) {
-        const result = await this.client.send(
+        const result = await this.catalogClient.send(
           { cmd: 'add-discount-product' },
           { productId, discountId },
         );
@@ -725,7 +735,7 @@ export class ProductService {
       ]);
 
       if (this.rabbitmqEnabled) {
-        const result = await this.client.send(
+        const result = await this.catalogClient.send(
           { cmd: 'remove-discount-product' },
           productId,
         );
@@ -776,7 +786,7 @@ export class ProductService {
       ]);
 
       if (this.rabbitmqEnabled) {
-        const result = await this.client.send(
+        const result = await this.catalogClient.send(
           { cmd: 'delete-product' },
           productId,
         );
@@ -825,7 +835,7 @@ export class ProductService {
       ]);
 
       if (this.rabbitmqEnabled) {
-        const result = await this.client.send(
+        const result = await this.catalogClient.send(
           { cmd: 'restore-product' },
           productId,
         );

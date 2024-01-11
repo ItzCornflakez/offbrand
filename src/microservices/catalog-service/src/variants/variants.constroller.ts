@@ -86,8 +86,6 @@ export class VariantController {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
-    console.log('Handling delete-productmessage');
-
     channel.ack(originalMsg);
   }
 }

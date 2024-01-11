@@ -22,7 +22,7 @@ export class CategoryService {
   constructor(
     private prismaService: PrismaService,
     private configService: ConfigService,
-    @Inject('PRODUCT_SERVICE') private readonly client: ClientProxy,
+    @Inject('PRODUCT_SERVICE_CATALOG') private readonly client: ClientProxy,
   ) {
     this.rabbitmqEnabled = this.configService.get<boolean>(
       'PMS_RABBITMQ_ENABLED',

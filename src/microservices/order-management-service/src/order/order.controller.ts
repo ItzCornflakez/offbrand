@@ -164,6 +164,7 @@ export class OrderController {
 
   @MessagePattern({cmd: 'create-product'})
   async productCreated(@Ctx() context: RmqContext) {
+    console.log('in create product')
     this.orderService.createProduct({
     })
         
