@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put } from '@nestjs/common';
 import { ReviewService } from './review.service';
-import {
-  Review as ReviewModel,
-} from '@prisma/client';
+import {Review as ReviewModel,} from '@prisma/client';
+import { Ctx, MessagePattern, RmqContext, Payload } from '@nestjs/microservices';
+import { ReviewDto } from 'src/common/dto/review.dto';
+import { DefaultResponseDto } from 'src/common/dto/deafultResponse.dto';
 
 @Controller()
 export class ReviewController {
@@ -13,47 +14,40 @@ export class ReviewController {
 
   @Post('review')
   async createReview(
-    @Body()
-    reviewData: {
-      user_id: number;
-      product_id: number
-      name: string;
-      score: number;
-      comment: string;
-      dislikes: number;
-      likes: number;
-    },
-  ): Promise<ReviewModel> {
-    return this.reviewService.createReview(reviewData);
-  }
+    @Body() dto: ReviewDto
+    ): Promise<DefaultResponseDto> {
+      console.log(dto)
+      const newReview = await this.reviewService.createReview(dto);
+  
+      const response: DefaultResponseDto = {
+        status: 'Success',
+        statusCode: HttpStatus.CREATED,
+        statusText: 'Review created successfully.',
+        data: newReview,
+      };
+  
+      return response;
+    }
 
   // UPDATE ENDPOINTS
 
   @Put('review/:id')
   async updateReview(
-    @Param('id') id: string, 
-    @Body()
-    reviewData: {
-      user_id: number;
-      product_id: number
-      name: string;
-      score: number;
-      comment: string;
-      dislikes: number;
-      likes: number;
-    }, ): Promise<ReviewModel> {
-    return this.reviewService.updateReview({
-      where: { id: Number(id) },
-      data: { 
-        user_id: reviewData.user_id,
-        product_id: reviewData.product_id,
-        name: reviewData.name,
-        score: reviewData.score,
-        comment: reviewData.comment,
-        dislikes: reviewData.dislikes,
-        likes: reviewData.likes,
-      },
-    });
+    @Param('id') id: string,
+    @Body() reviewDto: ReviewDto
+  ,
+  ): Promise<DefaultResponseDto> {
+      const updatedReview = await this.reviewService.updateReview({where: { id: Number(id) },
+        data: {...reviewDto}});
+
+     const response: DefaultResponseDto = {
+      status: 'Success',
+      statusCode: HttpStatus.CREATED,
+      statusText: `Review for user with ID: ${id} updated successfully.`,
+      data: updatedReview,
+    };
+
+    return response;
   }
 
   // DELETE ENDPOINTS
@@ -78,4 +72,25 @@ export class ReviewController {
     });
   }
 
+  @MessagePattern({cmd: 'create-user'})
+  async userCreated(@Ctx() context: RmqContext) {
+    this.reviewService.createUser({
+    })
+        
+  }
+
+  @MessagePattern({cmd: 'create-product'})
+  async productCreated(@Ctx() context: RmqContext) {
+    this.reviewService.createProduct({
+    })
+        
+  }
+
+  @MessagePattern({cmd: 'delete-user'})
+  async userDeleted(@Payload() id: any, @Ctx() context: RmqContext) {
+    this.reviewService.deleteUser({id: id})
+        
+  }
+
 }
+

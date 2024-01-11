@@ -12,7 +12,9 @@ datasource db {
 
 model Review {
   id         Int       @id @default(autoincrement())
+  user       User      @relation(fields: [user_id], references: [id])
   user_id    Int
+  product    Product   @relation(fields: [product_id], references: [id])
   product_id Int
   name       String
   score      Int 
@@ -21,4 +23,20 @@ model Review {
   likes      Int
   created_at DateTime  @default(now())
   updated_at DateTime  @default(now())
+}
+
+model Product {
+  id         Int      @id @default(autoincrement())
+
+  reviews   Review[]
+
+  @@map("products")
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+
+  reviews   Review[]
+
+  @@map("users")
 }
