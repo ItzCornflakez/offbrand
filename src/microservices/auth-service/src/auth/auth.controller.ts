@@ -29,6 +29,12 @@ import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices'
     @MessagePattern({cmd: 'verify-token'})
     async verifyToken(@Payload() data: any, @Ctx() context: RmqContext) {
       const token = data
+
+      const channel = context.getChannelRef();
+      const originalMsg = context.getMessage();
+
+      channel.ack(originalMsg);
+
       return this.authService.verifyToken(token)
         
   }

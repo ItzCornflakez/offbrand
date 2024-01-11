@@ -34,7 +34,7 @@ async function bootstrap() {
       noAck: false,
       urls: [`amqp://user:password@rabbitmq:5672`],
       ...app.get(ConfigService).get('rabbitmqCredentials'),
-      queue: 'user-queue',
+      queue: 'ums-oms-user-queue',
       queueOptions: {
         durable: false,
       },

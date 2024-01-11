@@ -33,8 +33,6 @@ import { RoleGuard } from 'src/common/utils/guards/roles.guard';
 
 @Controller('inventories')
 
-@Roles('admin')
-@UseGuards(AuthGuard, RoleGuard)
 @ApiTags('Inventory')
 export class InventoryController {
   constructor(private inventoryService: InventoryService) {}
@@ -42,6 +40,8 @@ export class InventoryController {
   @Get()
   @Version('1')
   @ApiOperation({ summary: `Get all inventories` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getAllInventories(
     @Query() getAllInventoriesQueryParamsDto: GetAllInventoriesQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -66,6 +66,8 @@ export class InventoryController {
   @Get('/deleted')
   @Version('1')
   @ApiOperation({ summary: `Get all deleted inventories` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getAllDeletedInventories(
     @Param() getInventoriesQueryParamsDto: GetInventoriesQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -90,6 +92,8 @@ export class InventoryController {
   @Get(':id')
   @Version('1')
   @ApiOperation({ summary: `Get a inventory by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getInventoryById(
     @Param('id', ParseIntPipe) inventoryId: number,
   ): Promise<DefaultResponseDto> {
@@ -108,6 +112,8 @@ export class InventoryController {
   @Put(':id')
   @Version('1')
   @ApiOperation({ summary: `Update a inventory by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async updateInventoryById(
     @Param('id', ParseIntPipe) inventoryId: number,
     @Body() editInventoryBodyDto: EditInventoryBodyDto,
@@ -130,6 +136,8 @@ export class InventoryController {
   @Patch(':id/delete')
   @Version('1')
   @ApiOperation({ summary: `Delete a inventory by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async deleteInventoryById(
     @Param('id', ParseIntPipe) inventoryId: number,
   ): Promise<DefaultResponseDto> {
@@ -147,6 +155,8 @@ export class InventoryController {
   @Patch(':id/restore')
   @Version('1')
   @ApiOperation({ summary: `Restore a inventory by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async restoreInventoryById(
     @Param('id', ParseIntPipe) inventoryId: number,
   ): Promise<DefaultResponseDto> {
@@ -164,6 +174,8 @@ export class InventoryController {
   @Patch(':id/reduce')
   @Version('1')
   @ApiOperation({ summary: `Reduce the quantity of a inventory by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async reduceInventoryQuantityById(
     @Param('id', ParseIntPipe) inventoryId: number,
     @Body() reduceQuantityBodyDto: ReduceQuantityBodyDto,
@@ -186,6 +198,8 @@ export class InventoryController {
   @Patch(':id/increase')
   @Version('1')
   @ApiOperation({ summary: `Increase the quantity of a inventory by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async increaseInventoryQuantityById(
     @Param('id', ParseIntPipe) inventoryId: number,
     @Body() increaseQuantityBodyDto: IncreaseQuantityBodyDto,
@@ -231,7 +245,7 @@ export class InventoryController {
       return true;
     } catch (e) {
       console.log('Error occurs');
-      channel.nack(originalMsg);
+      channel.ack(originalMsg);
       return false;
     }
   }

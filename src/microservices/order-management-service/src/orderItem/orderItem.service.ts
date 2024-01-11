@@ -37,23 +37,29 @@ export class OrderItemService {
 
     async createOrderItem(data: OrderItemDto): Promise<OrderItem> {
 
-      let createdOrderItem: any
-      this.prisma.$transaction(async (transactionClient) => {
+      let createdOrderItem: OrderItem
 
-        const createdOrderItem = await transactionClient.orderItem.create({
-          data,
-        })
+      try{
 
-        const result = this.client.send({ cmd: 'create-orderitem' }, {productId: createdOrderItem.product_id, color: createdOrderItem.color, quantity: createdOrderItem.quantity, })
-        const newInventoryStatus = await lastValueFrom(result)
+        await this.prisma.$transaction(async (transactionClient) => {
 
-        if(!newInventoryStatus){
-          throw new Error("Not enough inventory")
-        }
+          createdOrderItem = await transactionClient.orderItem.create({
+            data,
+          })
 
+          const result = this.client.send({ cmd: 'create-orderitem' }, {productId: createdOrderItem.product_id, color: createdOrderItem.color, quantity: createdOrderItem.quantity, })
+          const inventoryExists = await lastValueFrom(result)
+          console.log(inventoryExists)
+
+          if(!inventoryExists){
+            throw new Error("Not enough inventory")
+          }
+          
+        });
+      } catch(e){
+        console.log("Error during transaction:", e);
+        throw e
       }
-      
-      );
 
       return createdOrderItem
       

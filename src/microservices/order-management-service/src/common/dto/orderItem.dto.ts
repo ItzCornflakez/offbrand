@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Status } from "@prisma/client";
-import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class OrderItemDto {
 
@@ -20,6 +19,7 @@ export class OrderItemDto {
     quantity: number;
 
     @ApiProperty()
+    @IsString()
     @IsNotEmpty()
     color: string;
 
@@ -27,20 +27,4 @@ export class OrderItemDto {
     @IsNumber()
     @IsNotEmpty()
     price: number;
-
-    @ApiProperty()
-    @IsEnum(Status)
-    @IsOptional()
-    status? : Status;
-
-    @ApiProperty()
-    @IsDate()
-    @IsOptional()
-    created_at?: Date;
-
-    @ApiProperty()
-    @IsDate()
-    @IsOptional()
-    updated_at?: Date;
-
 }

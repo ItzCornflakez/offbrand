@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, UseGuards, Version } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, InternalServerErrorException, Param, Patch, Post, Put, UseGuards, Version } from '@nestjs/common';
 import { OrderItemService } from './orderItem.service';
-import { DefaultResponseDto, OrderItemDto } from 'src/common/dto';
-import { OrderItem as OrderItemModel, Status } from '@prisma/client';
+import { DefaultResponseDto, EditOrderItemDto, OrderItemDto } from 'src/common/dto';
+import { OrderItem, OrderItem as OrderItemModel, Status } from '@prisma/client';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/common/utils/decorators/roles.decorators';
 import { AuthGuard } from 'src/common/utils/guards/auth.guard';
@@ -17,16 +17,30 @@ export class OrderItemController {
 
     @Post()
     @Version('1')
-    
     @ApiOperation({ summary: `Create a orderItem` })
-    
     @Roles('admin', 'employee', 'user')
     @UseGuards(AuthGuard, RoleGuard)
     async createOrderItem(
       @Body() dto: OrderItemDto
-    ): Promise<OrderItemModel> {
-  
-      return this.orderItemService.createOrderItem(dto);
+    ): Promise<DefaultResponseDto> {
+      try {
+
+      const createdOrderItem = await this.orderItemService.createOrderItem(dto);
+
+      const response: DefaultResponseDto = {
+        status: 'Success',
+        statusCode: HttpStatus.CREATED,
+        statusText: 'Order item created successfully.',
+        data: createdOrderItem,
+      };
+
+      return response
+
+    } catch(e){
+      if(e instanceof Error) {
+        throw new InternalServerErrorException(e.message)
+      }
+    }
     }
 
     @Get('orderItems')
@@ -62,7 +76,7 @@ export class OrderItemController {
   
     @Get(':order_id')
     @Version('1')
-    @ApiOperation({ summary: `Get orderItem by order id` })
+    @ApiOperation({ summary: `Get orderItems by order id` })
     @Roles('admin', 'employee', 'user')
     @UseGuards(AuthGuard, RoleGuard)
     async getOrderItemsByOrderId(@Param('order_id') id: string): Promise<OrderItemModel[]> {
@@ -71,6 +85,27 @@ export class OrderItemController {
           order_id: Number(id)
         }
       });
+    }
+
+    @Put(':id')
+    @Version('1')
+    @ApiOperation({ summary: `Update orderItem by id` })
+    @Roles('admin', 'employee')
+    @UseGuards(AuthGuard, RoleGuard)
+    async editOrderItem(@Param('id') id: string, @Body() editOrderItemDto: EditOrderItemDto
+    ): Promise<DefaultResponseDto> {
+      const orderItem = await this.orderItemService.updateOrderItem({ 
+        where: {id: Number(id) }, 
+        data: {...editOrderItemDto, updated_at: new Date()}});
+
+      const response: DefaultResponseDto = {
+        status: 'Success',
+        statusCode: HttpStatus.OK,
+        statusText: 'Order updated successfully.',
+        data: orderItem,
+      };
+
+      return response;
     }
   
     // Add update to different things here

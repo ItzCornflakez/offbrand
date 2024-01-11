@@ -1,17 +1,20 @@
+import { Optional } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
 import { Status } from "@prisma/client";
 import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
 
 
-export class OrderDto {
-    @ApiProperty()
-    @IsNumber()
-    @IsNotEmpty()
-    user_id: number;
+export class EditOrderDto {
     
     @ApiProperty()
     @IsNumber()
-    @IsNotEmpty()
-    total_price: number;
+    @Optional()
+    total_price?: number;
+
+    @ApiProperty()
+    @IsEnum(Status)
+    @IsOptional()
+    status? : Status;
+    
     
 }

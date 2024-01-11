@@ -391,7 +391,7 @@ export class InventoryService {
     quantity: number,
   ) {
     try {
-      return await this.prismaService.$transaction(async (tx) => {
+      await this.prismaService.$transaction(async (tx) => {
         const inventory = await tx.inventory.update({
           data: {
             quantity: { decrement: quantity },
@@ -409,11 +409,9 @@ export class InventoryService {
             `Not enough in stock for product with ID: '${productId}' with color: '${color}'`,
           );
         }
-
-        return true;
       });
     } catch (e) {
-      return e;
+      throw e;
     }
   }
 }
