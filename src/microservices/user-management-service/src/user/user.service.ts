@@ -96,7 +96,7 @@ export class UserService {
   async createUser(allUserDto: AllUserDto ) {
 
     try{
-      const createdUser = this.prisma.$transaction(async (transactionClient) => {
+      this.prisma.$transaction(async (transactionClient) => {
         
         const user = await transactionClient.user.create({data: {role: 'user'}});
 
@@ -127,7 +127,7 @@ export class UserService {
         try{
           const createdUserDetails = await transactionClient.user_Details.create({data: userDetailsObject})
         } catch (e) {
-          throw new ConflictException("Email already exists")      
+          throw new Error("Email already exists")      
         }
 
         const result = await this.client.send(
@@ -136,19 +136,14 @@ export class UserService {
         await result.subscribe()
 
         //Send to reviewMicroService
-        /*
         const rmsResult = await this.rmsClient.send(
         { cmd: 'create-user' },{},
         );
         await rmsResult.subscribe();
-        */
-    
-        return createdUser
+        
       });
     } catch (e) {
-      if (e instanceof Error) {
-        throw new InternalServerErrorException(e.message);
-      }
+      throw e
     }
   }
 

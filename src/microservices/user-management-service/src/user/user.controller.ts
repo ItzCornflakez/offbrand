@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, ConflictException, Controller, Delete, Get, InternalServerErrorException, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
@@ -22,6 +22,7 @@ export class UserController {
   async createUser(
     @Body() allUserDto: AllUserDto): Promise<DefaultResponseDto> {
       // Create the user, userDetails and Password tables
+      try{
       const user = await this.userService.createUser(allUserDto);
       
 
@@ -33,6 +34,11 @@ export class UserController {
       };
   
       return response;
+    } catch(e) {
+      if(e instanceof Error){
+        throw new ConflictException(e.message)
+      }
+    }
   }
 
   @Roles('admin')
