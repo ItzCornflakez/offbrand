@@ -26,10 +26,13 @@ export class CategoryController {
   @Get()
   @Version('1')
   async getAllCategories(): Promise<DefaultResponseDto> {
+    const categories = await this.categoryService.getAllCategories();
+
     const response: DefaultResponseDto = {
       status: 'Success',
       statusCode: HttpStatus.OK,
       statusText: `Categories retrived successfully`,
+      data: categories,
     };
 
     return response;
@@ -57,6 +60,7 @@ export class CategoryController {
     @Payload() createCategoryDto: CreateCategoryDto,
     @Ctx() context: RmqContext,
   ) {
+    console.log('in create category');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -71,6 +75,7 @@ export class CategoryController {
     payload: { categoryId: number; editCategoryDto: EditCategoryDto },
     @Ctx() context: RmqContext,
   ) {
+    console.log('in update category');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -87,6 +92,7 @@ export class CategoryController {
     @Payload() categoryId: number,
     @Ctx() context: RmqContext,
   ) {
+    console.log('in delete category');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -100,6 +106,7 @@ export class CategoryController {
     @Payload() categoryId: number,
     @Ctx() context: RmqContext,
   ) {
+    console.log('in restore category');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 

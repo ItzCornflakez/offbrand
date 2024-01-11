@@ -21,6 +21,7 @@ export class VariantService {
         },
       });
     } catch (e) {
+      console.log(e);
       return e;
     }
   }
@@ -41,7 +42,7 @@ export class VariantService {
 
   async deleteVariant(variantId: number) {
     try {
-      this.prismaService.variants.update({
+      await this.prismaService.variants.update({
         where: { id: variantId },
         data: { is_deleted: true, last_updated_at: new Date() },
       });
@@ -52,7 +53,7 @@ export class VariantService {
 
   async restoreVariant(variantId: number) {
     try {
-      this.prismaService.variants.update({
+      await this.prismaService.variants.update({
         where: { id: variantId },
         data: { is_deleted: false, last_updated_at: new Date() },
       });

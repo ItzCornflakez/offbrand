@@ -1,13 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsOptional, IsNumber, Min, IsEnum } from 'class-validator';
-
-export enum SortBy {
-  RECENT_FIRST = 'RECENT_FIRST',
-  OLDEST_FIRST = 'OLDEST_FIRST',
-  LOWEST_PRICE = 'LOWEST_PRICE',
-  HIGHEST_PRICE = 'HIGHEST_PRICE',
-}
+import { IsOptional, IsNumber, Min, IsString } from 'class-validator';
 
 export class GetProductsQueryParamsDto {
   @ApiProperty({ required: false, default: 1 })
@@ -26,14 +19,6 @@ export class GetProductsQueryParamsDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
+  @IsString()
   search?: string;
-
-  @ApiProperty({
-    required: false,
-    enum: SortBy,
-    default: SortBy.RECENT_FIRST,
-  })
-  @IsEnum(SortBy)
-  @IsOptional()
-  sort_by?: SortBy;
 }

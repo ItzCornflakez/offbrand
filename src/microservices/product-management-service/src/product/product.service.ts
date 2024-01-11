@@ -46,6 +46,27 @@ export class ProductService {
           `Cannot create the new product because the category with ID: ${categoryId} does not exist.`,
         );
       }
+
+      // Check if same color, ugly solution but time forbids a better one for now since it will be a problem with rabbitMQ
+      const inventories = newProductDto.inventories;
+      let nullColorEncountered = false;
+      const colors: (string | null)[] = [];
+      for (const inventory of inventories) {
+        console.log(inventory);
+        const color = inventory?.color;
+
+        if (color === null) {
+          if (nullColorEncountered) {
+            throw new ConflictException('More than one null color found');
+          }
+          nullColorEncountered = true;
+        } else if (colors.includes(color)) {
+          throw new ConflictException(`Duplicate color found: ${color}`);
+        }
+
+        colors.push(color);
+      }
+
       const newProduct = await this.prismaService.product.create({
         data: {
           ...rest,
@@ -92,28 +113,14 @@ export class ProductService {
 
       return newProduct;
     } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === 'P2002') {
-          throw new ConflictException(
-            'Unable to create the new product due to a conflict: two or more of the provided inventories share the same color, or two or more categories have the same id. Each inventory must have a unique color for the product, and each category must be distinct.',
-            { cause: e },
-          );
-        } else {
-          throw new InternalServerErrorException(
-            'Something went wrong creating the new product, please try again later.',
-            { cause: e },
-          );
-        }
-      } else {
-        if (e instanceof NotFoundException) {
-          throw e;
-        }
-
-        throw new InternalServerErrorException(
-          'Something went wrong creating the new product, please try again later.',
-          { cause: e },
-        );
+      if (e instanceof ConflictException) {
+        throw e;
       }
+
+      throw new InternalServerErrorException(
+        'Something went wrong creating the new product, please try again later.',
+        { cause: e },
+      );
     }
   }
 
@@ -139,15 +146,17 @@ export class ProductService {
             create: createInventoryBodyDto,
           },
         },
+        include: {
+          inventories: true,
+        },
       });
 
       if (this.rabbitmqEnabled) {
-        const newVariant = new CreateProductVariantBodyDto();
-        newVariant.color = createInventoryBodyDto.color;
+        const color: string | null = createInventoryBodyDto.color;
 
         const result = await this.client.send(
           { cmd: 'create-variant' },
-          { productId, newVariant },
+          { productId, createVariantDto: { color } },
         );
         await result.subscribe();
       }
@@ -455,7 +464,7 @@ export class ProductService {
       if (this.rabbitmqEnabled) {
         const result = await this.client.send(
           { cmd: 'update-product' },
-          editProductBodyDto,
+          { productId, editProductDto: editProductBodyDto },
         );
         await result.subscribe();
       }

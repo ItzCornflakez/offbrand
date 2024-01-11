@@ -15,12 +15,10 @@ export class ProductService {
 
   //Endpoint functions
   async getProducts(getProductsQueryParamsDto: GetProductsQueryParamsDto) {
+    console.log(getProductsQueryParamsDto);
     const page = getProductsQueryParamsDto.page ?? 1;
     const limit = getProductsQueryParamsDto.limit ?? 0;
     const search = getProductsQueryParamsDto.search ?? '';
-    const { sortBy, orderDirection } = this.getOrderByClause(
-      getProductsQueryParamsDto.sort_by,
-    );
 
     const skip = (page - 1) * limit;
 
@@ -34,7 +32,6 @@ export class ProductService {
         },
         skip,
         take: limit === 0 ? undefined : limit,
-        orderBy: sortBy ? { [sortBy]: orderDirection || 'asc' } : undefined,
       });
 
       const totalEntries = await this.prismaService.product.count({
@@ -85,9 +82,6 @@ export class ProductService {
     const page = getProductsQueryParamsDto.page ?? 1;
     const limit = getProductsQueryParamsDto.limit ?? 0;
     const search = getProductsQueryParamsDto.search ?? '';
-    const { sortBy, orderDirection } = this.getOrderByClause(
-      getProductsQueryParamsDto.sort_by,
-    );
 
     const skip = (page - 1) * limit;
     try {
@@ -123,7 +117,6 @@ export class ProductService {
         },
         skip,
         take: limit === 0 ? undefined : limit,
-        orderBy: sortBy ? { [sortBy]: orderDirection || 'asc' } : undefined,
       });
 
       const totalEntries = await this.prismaService.product.count({
@@ -156,9 +149,6 @@ export class ProductService {
     const page = getProductsQueryParamsDto.page ?? 1;
     const limit = getProductsQueryParamsDto.limit ?? 0;
     const search = getProductsQueryParamsDto.search ?? '';
-    const { sortBy, orderDirection } = this.getOrderByClause(
-      getProductsQueryParamsDto.sort_by,
-    );
 
     const skip = (page - 1) * limit;
     try {
@@ -188,7 +178,6 @@ export class ProductService {
         },
         skip,
         take: limit === 0 ? undefined : limit,
-        orderBy: sortBy ? { [sortBy]: orderDirection || 'asc' } : undefined,
       });
 
       const totalEntries = await this.prismaService.product.count({
@@ -248,6 +237,7 @@ export class ProductService {
         data: { ...editProductDto },
       });
     } catch (e) {
+      console.log(e);
       return e;
     }
   }
@@ -275,7 +265,7 @@ export class ProductService {
 
   async removeProductFromCategory(productId: number, categoryId: number) {
     try {
-      this.prismaService.productCategory.delete({
+      await this.prismaService.productCategory.delete({
         where: {
           product_id_category_id: {
             product_id: productId,
@@ -284,13 +274,14 @@ export class ProductService {
         },
       });
     } catch (e) {
+      console.log(e);
       return e;
     }
   }
 
   async addDiscountToProduct(productId: number, discountId: number) {
     try {
-      this.prismaService.product.update({
+      await this.prismaService.product.update({
         where: { id: productId },
         data: { discount_id: discountId, last_updated_at: new Date() },
       });
@@ -301,7 +292,7 @@ export class ProductService {
 
   async removeDiscountFromProduct(productId: number) {
     try {
-      this.prismaService.product.update({
+      await this.prismaService.product.update({
         where: { id: productId },
         data: { discount_id: null, last_updated_at: new Date() },
       });
@@ -337,27 +328,12 @@ export class ProductService {
         }),
 
         this.prismaService.variants.updateMany({
-          where: { product_id: productId, is_deleted: false },
+          where: { product_id: productId, is_deleted: true },
           data: { is_deleted: false, last_updated_at: new Date() },
         }),
       ]);
     } catch (e) {
       return e;
-    }
-  }
-
-  private getOrderByClause(organize_by?: string) {
-    switch (organize_by) {
-      case 'RECENTLY_ADDED':
-        return { sortBy: 'created_at', orderDirection: 'desc' };
-      case 'OLDEST_ADDED':
-        return { sortBy: 'created_at', orderDirection: 'asc' };
-      case 'LOWEST_PRICE':
-        return { sortBy: 'price', orderDirection: 'asc' };
-      case 'HIGHEST_PRICE':
-        return { sortBy: 'price', orderDirection: 'desc' };
-      default:
-        return { sortBy: undefined, orderDirection: undefined }; // Default to no specific ordering
     }
   }
 }

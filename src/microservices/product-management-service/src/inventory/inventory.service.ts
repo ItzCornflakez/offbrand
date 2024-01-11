@@ -171,7 +171,7 @@ export class InventoryService {
 
         const result = await this.client.send(
           { cmd: 'update-variant' },
-          { inventoryId, updatedVariant },
+          { variantId: inventoryId, editVariantDto: updatedVariant },
         );
         await result.subscribe();
       }

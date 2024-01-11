@@ -15,7 +15,7 @@ export class CategoryService {
   async getAllCategories() {
     try {
       const categories = await this.prismaService.category.findMany({
-        where: { is_deleted: true },
+        where: { is_deleted: false },
       });
 
       return categories;
@@ -33,11 +33,17 @@ export class CategoryService {
       });
 
       if (!category) {
-        throw new NotFoundException(`Product with ID ${categoryId} not found.`);
+        throw new NotFoundException(
+          `Category with ID: '${categoryId}' not found.`,
+        );
       }
 
       return category;
     } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+
       throw new InternalServerErrorException('Failed to fetch category', {
         cause: e,
       });

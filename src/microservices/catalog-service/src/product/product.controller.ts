@@ -26,7 +26,7 @@ export class ProductController {
   constructor(private productService: ProductService) {}
 
   @Get()
-  @Version('')
+  @Version('1')
   async getProducts(
     @Query() getProductsQueryParamsDto: GetProductsQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -87,9 +87,9 @@ export class ProductController {
     const response: DefaultResponseDto = {
       status: 'Success',
       statusCode: HttpStatus.OK,
-      statusText: 'All categories retrived successfully.',
+      statusText: 'All products retrived successfully.',
       data: {
-        categories: products,
+        products: products,
         totalEntries: totalEntries,
       },
     };
@@ -120,6 +120,7 @@ export class ProductController {
     @Payload() newProductDTo: CreateProductDto,
     @Ctx() context: RmqContext,
   ) {
+    console.log('In create product');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -133,6 +134,7 @@ export class ProductController {
     @Payload() payload: { productId: number; editProductDto: EditProductDto },
     @Ctx() context: RmqContext,
   ) {
+    console.log('In update product');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -149,6 +151,7 @@ export class ProductController {
     @Payload() payload: { productId: number; categoryId: number },
     @Ctx() context: RmqContext,
   ) {
+    console.log('In add category to product');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -165,6 +168,9 @@ export class ProductController {
     @Payload() payload: { productId: number; categoryId: number },
     @Ctx() context: RmqContext,
   ) {
+    console.log('In remove category product');
+    console.log(payload.productId);
+    console.log(payload.categoryId);
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -181,6 +187,7 @@ export class ProductController {
     @Payload() payload: { productId: number; discountId: number },
     @Ctx() context: RmqContext,
   ) {
+    console.log('In add discount to product');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -197,6 +204,7 @@ export class ProductController {
     @Payload() productId: number,
     @Ctx() context: RmqContext,
   ) {
+    console.log('remove discount product');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -210,6 +218,7 @@ export class ProductController {
     @Payload() productId: number,
     @Ctx() context: RmqContext,
   ) {
+    console.log('In delete product');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -223,6 +232,7 @@ export class ProductController {
     @Payload() productId: number,
     @Ctx() context: RmqContext,
   ) {
+    console.log('In restore product');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 

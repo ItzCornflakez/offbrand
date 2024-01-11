@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsISO8601,
@@ -9,7 +8,6 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { toBoolean } from '../../common/utils/cast.helpers';
 
 export class EditDiscountDto {
   @ApiProperty({ required: false })
@@ -30,7 +28,6 @@ export class EditDiscountDto {
   discount_percent?: number;
 
   @ApiProperty({ required: false })
-  @Transform(({ value }) => toBoolean(value))
   @IsBoolean()
   @IsOptional()
   is_active?: boolean;
