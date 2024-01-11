@@ -55,7 +55,7 @@ model Variants{
   product          Product    @relation(fields: [product_id], references: [id])
 
   @@unique([product_id, color])
-  @@map("inventory")
+  @@map("variants")
 
 }
 

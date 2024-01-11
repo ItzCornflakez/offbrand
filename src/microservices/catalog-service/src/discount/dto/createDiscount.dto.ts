@@ -1,4 +1,3 @@
-import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsISO8601,
@@ -9,7 +8,6 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { toBoolean } from '../../common/utils/cast.helpers';
 
 export class CreateDiscountDto {
   @IsString()
@@ -26,7 +24,6 @@ export class CreateDiscountDto {
   @Max(1)
   discount_percent: number;
 
-  @Transform(({ value }) => toBoolean(value))
   @IsBoolean()
   @IsOptional()
   is_active?: boolean;

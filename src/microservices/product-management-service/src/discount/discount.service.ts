@@ -30,9 +30,11 @@ export class DiscountService {
 
   async createNewDiscount(createDiscountDto: CreateNewDiscountDto) {
     try {
-      const newDiscount = this.prismaService.discount.create({
-        data: { ...createDiscountDto },
-      });
+      const newDiscount = await this.prismaService.$transaction([
+        this.prismaService.discount.create({
+          data: { ...createDiscountDto },
+        }),
+      ]);
 
       if (this.rabbitmqEnabled) {
         const result = await this.client.send(
@@ -208,6 +210,13 @@ export class DiscountService {
         );
       }
 
+      const updatedDiscount = await this.prismaService.$transaction([
+        this.prismaService.discount.update({
+          where: { id: discountId },
+          data: { ...editDiscountDto, last_updated_at: new Date() },
+        }),
+      ]);
+
       if (this.rabbitmqEnabled) {
         const result = await this.client.send(
           { cmd: 'update-discount' },
@@ -216,10 +225,6 @@ export class DiscountService {
         await result.subscribe();
       }
 
-      const updatedDiscount = await this.prismaService.discount.update({
-        where: { id: discountId },
-        data: { ...editDiscountDto, last_updated_at: new Date() },
-      });
       return updatedDiscount;
     } catch (e) {
       if (e instanceof NotFoundException) {

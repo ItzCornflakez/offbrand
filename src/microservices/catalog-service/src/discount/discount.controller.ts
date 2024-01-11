@@ -75,6 +75,7 @@ export class DiscountController {
     @Payload() createDiscountDto: CreateDiscountDto,
     @Ctx() context: RmqContext,
   ) {
+    console.log('In create discount');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -89,6 +90,7 @@ export class DiscountController {
     payload: { discountId: number; editDiscountDto: EditDiscountDto },
     @Ctx() context: RmqContext,
   ) {
+    console.log('In update discount');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -105,6 +107,7 @@ export class DiscountController {
     @Payload() discountId: number,
     @Ctx() context: RmqContext,
   ) {
+    console.log('In activate discount');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -118,6 +121,7 @@ export class DiscountController {
     @Payload() discountId: number,
     @Ctx() context: RmqContext,
   ) {
+    console.log('In inactivate discount');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -131,6 +135,7 @@ export class DiscountController {
     @Payload() discountId: number,
     @Ctx() context: RmqContext,
   ) {
+    console.log('In delete discount');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -144,6 +149,7 @@ export class DiscountController {
     @Payload() discountId: number,
     @Ctx() context: RmqContext,
   ) {
+    console.log('In restore discount');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 

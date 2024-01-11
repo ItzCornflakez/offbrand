@@ -19,6 +19,8 @@ export class VariantController {
     payload: { productId: number; createVariantDto: CreateProductVariantDto },
     @Ctx() context: RmqContext,
   ) {
+    console.log('In create Variant');
+    console.log(payload.createVariantDto);
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -36,6 +38,7 @@ export class VariantController {
     payload: { variantId: number; editVariantDto: EditProductVariantDto },
     @Ctx() context: RmqContext,
   ) {
+    console.log('In update variant');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -52,6 +55,8 @@ export class VariantController {
     @Payload() variantId: number,
     @Ctx() context: RmqContext,
   ) {
+    console.log('In delete variant');
+    console.log('variantId', variantId);
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -65,6 +70,8 @@ export class VariantController {
     @Payload() variantId: number,
     @Ctx() context: RmqContext,
   ) {
+    console.log('In restore variant');
+    console.log(variantId);
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -73,6 +80,7 @@ export class VariantController {
     channel.ack(originalMsg);
   }
 
+  //Dropped due to time
   @MessagePattern({ cmd: 'toggle-sold_out-variant' })
   async restoreVariant(@Ctx() context: RmqContext) {
     const channel = context.getChannelRef();

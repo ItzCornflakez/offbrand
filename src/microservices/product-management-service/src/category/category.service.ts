@@ -31,9 +31,21 @@ export class CategoryService {
 
   async createCategory(createCategoryDto: CreateCategoryDto) {
     try {
-      const createdCategory = await this.prismaService.category.create({
-        data: { ...createCategoryDto },
+      const category = await this.prismaService.category.findFirst({
+        where: { name: createCategoryDto.name },
       });
+
+      if (category) {
+        throw new ConflictException(
+          `A category with the specified name: '${createCategoryDto.name}' already exists`,
+        );
+      }
+
+      const createdCategory = await this.prismaService.$transaction([
+        this.prismaService.category.create({
+          data: { ...createCategoryDto },
+        }),
+      ]);
 
       if (this.rabbitmqEnabled) {
         const result = await this.client.send(
@@ -45,24 +57,14 @@ export class CategoryService {
 
       return createdCategory;
     } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === 'P2002') {
-          throw new ConflictException(
-            `A category with the specified name: ${createCategoryDto.name} already exists`,
-            { cause: e },
-          );
-        } else {
-          throw new InternalServerErrorException(
-            'Something went wrong creating the new category, please try again later',
-            { cause: e },
-          );
-        }
-      } else {
-        throw new InternalServerErrorException(
-          'Something went wrong creating the new category, please try again later',
-          { cause: e },
-        );
+      if (e instanceof ConflictException) {
+        throw e;
       }
+
+      throw new InternalServerErrorException(
+        'Something went wrong creating the new category, please try again later',
+        { cause: e },
+      );
     }
   }
 
@@ -165,10 +167,12 @@ export class CategoryService {
         );
       }
 
-      const updatedCategory = await this.prismaService.category.update({
-        where: { id: categoryId },
-        data: { ...editCategoryDto, last_updated_at: new Date() },
-      });
+      const updatedCategory = await this.prismaService.$transaction([
+        this.prismaService.category.update({
+          where: { id: categoryId },
+          data: { ...editCategoryDto, last_updated_at: new Date() },
+        }),
+      ]);
 
       if (this.rabbitmqEnabled) {
         const result = await this.client.send(
