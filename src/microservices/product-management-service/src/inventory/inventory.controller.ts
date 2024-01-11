@@ -32,8 +32,10 @@ import { AuthGuard } from 'src/common/utils/guards/auth.guard';
 import { RoleGuard } from 'src/common/utils/guards/roles.guard';
 
 @Controller('inventories')
+/*
 @Roles('admin')
 @UseGuards(AuthGuard, RoleGuard)
+*/
 @ApiTags('Inventory')
 export class InventoryController {
   constructor(private inventoryService: InventoryService) {}

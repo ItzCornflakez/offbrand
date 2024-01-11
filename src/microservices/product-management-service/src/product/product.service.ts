@@ -29,6 +29,7 @@ export class ProductService {
     @Inject('PRODUCT_SERVICE_CATALOG')
     private readonly catalogClient: ClientProxy,
     @Inject('PRODUCT_SERVICE_OMS') private readonly omsClient: ClientProxy,
+    @Inject('PRODUCT_SERVICE_RMS') private readonly rmsClient: ClientProxy,
   ) {
     this.rabbitmqEnabled = this.configService.get<boolean>(
       'PMS_RABBITMQ_ENABLED',
@@ -119,6 +120,13 @@ export class ProductService {
           {},
         );
         await omsResult.subscribe();
+
+        //Send to reviewMicroService
+        const rmsResult = await this.rmsClient.send(
+          { cmd: 'create-product' },
+          {},
+        );
+        await rmsResult.subscribe();
       }
 
       return newProduct;
