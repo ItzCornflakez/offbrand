@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
+import { HttpExceptionFilter } from './common/exception-filters/httpException.filter';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
@@ -14,6 +15,21 @@ async function bootstrap() {
     }),
   );
 
+  app.useGlobalFilters(new HttpExceptionFilter(new Logger()));
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      noAck: false,
+      urls: [`amqp://user:password@rabbitmq:5672`],
+      ...app.get(ConfigService).get('rabbitmqCredentials'),
+      queue: 'user-queue',
+      queueOptions: {
+        durable: false,
+      },
+    },
+  });
+
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
@@ -25,7 +41,6 @@ async function bootstrap() {
         durable: false,
       },
     },
-    
   });
   await app.startAllMicroservices();
 

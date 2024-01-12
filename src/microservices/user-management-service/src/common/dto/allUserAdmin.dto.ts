@@ -1,8 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsDate, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
-export class AllUserDto {
-    
+export class AllUserAdminDto {
+
+    //User dto
+    @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    role: string;
+
     @ApiProperty()
     @IsString()
     @IsNotEmpty()

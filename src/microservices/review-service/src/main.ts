@@ -10,6 +10,15 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get('RMS_APP_PORT');
 
+  const options = new DocumentBuilder()
+    .addBearerAuth()
+    .setTitle('Offbrand - Review-Management-Service API')
+    .setDescription('Endpoints for the offbrand review management service')
+    .setVersion('1.0')
+    .build();
+    const document = SwaggerModule.createDocument(app, options);
+    SwaggerModule.setup(`/docs`, app, document);
+  
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
@@ -17,6 +26,18 @@ async function bootstrap() {
       urls: [`amqp://user:password@rabbitmq:5672`],
       ...configService.get('rabbitmqCredentials'),
       queue: 'pms-rms-product-queue',
+      queueOptions: {
+        durable: false,
+      },
+    },
+  });
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      noAck: false,
+      urls: [`amqp://user:password@rabbitmq:5672`],
+      ...configService.get('rabbitmqCredentials'),
+      queue: 'ums-rms-user-queue',
       queueOptions: {
         durable: false,
       },

@@ -9,23 +9,5 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 @Module({
   controllers: [ReviewController],
   providers: [ReviewService, PrismaService, ConfigService],
-  imports: [ClientsModule.registerAsync([
-    {
-      name: 'REVIEW_SERVICE',
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        transport: Transport.RMQ,
-        options: {
-          urls: [`amqp://user:password@rabbitmq:5672`],
-          queue: 'review-queue',
-          queueOptions: {
-            durable: false,
-          },
-        },
-      }),
-      inject: [ConfigService],
-    },
-  ]),],
-  
 })
 export class ReviewModule {}
