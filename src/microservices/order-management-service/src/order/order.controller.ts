@@ -31,8 +31,6 @@ import { EditOrderDto } from 'src/common/dto/editOrder.dto';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  // CREATE ENDPOINT
-
   @Post()
   @Version('1')
   @ApiOperation({ summary: `Create a order` })
