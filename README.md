@@ -24,7 +24,7 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+A comprehensive microservices project of a ecommerce site backend using [Nest](https://github.com/nestjs/nest).
 
 ## Prerequisites
 
