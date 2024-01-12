@@ -26,37 +26,22 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Installation
+## Prerequisites
 
-```bash
-$ yarn install
-```
+- Docker installed on your local machine. You can follow Docker's tutorial for [macOS](https://docs.docker.com/desktop/install/mac-install/) or [Windows](https://docs.docker.com/desktop/install/windows-install/).
+ - The Docker-Compose plugin installed on your machine. You can find download instructions [here](https://docs.docker.com/compose/install/).
+
 
 ## Running the app
 
 ```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
+cd script
+./deploy.sh
 ```
 
 ## Test
 
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
-```
+As of now there is no extensive testing due to time constraints, but it is setup to implement. 
 
 ## Support
 
