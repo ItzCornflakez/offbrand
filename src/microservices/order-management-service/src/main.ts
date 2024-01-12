@@ -40,14 +40,14 @@ async function bootstrap() {
       },
     },
   });
-  
+
   await app.startAllMicroservices();
 
   app.useGlobalFilters(new HttpExceptionFilter(new Logger()));
 
   app.enableVersioning({
-    type: VersioningType.URI
-  })
+    type: VersioningType.URI,
+  });
 
   const options = new DocumentBuilder()
     .addBearerAuth()
@@ -57,7 +57,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup(`/docs`, app, document);
-
 
   const configService = app.get(ConfigService);
   const port = configService.get('OMS_APP_PORT');

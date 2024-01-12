@@ -28,10 +28,7 @@ switch (process.env.AUTH_NODE_ENV) {
       isGlobal: true,
       validate: validateFunction,
     }), //Load configuration file
-    AuthModule
-    
+    AuthModule,
   ],
-},
-
-)
+})
 export class AppModule {}

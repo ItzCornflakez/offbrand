@@ -7,12 +7,13 @@ export async function hashPassword(password: string): Promise<string> {
   return hashedPassword;
 }
 
-export async function comparePassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+export async function comparePassword(
+  plainPassword: string,
+  hashedPassword: string,
+): Promise<boolean> {
   const hashedPlainPassword = await hashPassword(plainPassword);
   return hashedPlainPassword === hashedPassword;
 }
-
-
 
 /*
 
@@ -33,4 +34,4 @@ export async function comparePassword(plainPassword: string, hashedPassword: str
   return argon2.verify(plainPassword, hashedPassword);
 }
 
-*/ 
+*/

@@ -1,46 +1,58 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { ReviewService } from './review.service';
-import {Review as ReviewModel,} from '@prisma/client';
-import { Ctx, MessagePattern, RmqContext, Payload } from '@nestjs/microservices';
+import { Review as ReviewModel } from '@prisma/client';
+import {
+  Ctx,
+  MessagePattern,
+  RmqContext,
+  Payload,
+} from '@nestjs/microservices';
 import { ReviewDto } from 'src/common/dto/review.dto';
 import { DefaultResponseDto } from 'src/common/dto/deafultResponse.dto';
 
 @Controller()
 export class ReviewController {
-  constructor(
-    private readonly reviewService: ReviewService) {}
+  constructor(private readonly reviewService: ReviewService) {}
 
   // CREATE ENDPOINTS
 
   @Post('review')
-  async createReview(
-    @Body() dto: ReviewDto
-    ): Promise<DefaultResponseDto> {
-      console.log(dto)
-      const newReview = await this.reviewService.createReview(dto);
-  
-      const response: DefaultResponseDto = {
-        status: 'Success',
-        statusCode: HttpStatus.CREATED,
-        statusText: 'Review created successfully.',
-        data: newReview,
-      };
-  
-      return response;
-    }
+  async createReview(@Body() dto: ReviewDto): Promise<DefaultResponseDto> {
+    console.log(dto);
+    const newReview = await this.reviewService.createReview(dto);
+
+    const response: DefaultResponseDto = {
+      status: 'Success',
+      statusCode: HttpStatus.CREATED,
+      statusText: 'Review created successfully.',
+      data: newReview,
+    };
+
+    return response;
+  }
 
   // UPDATE ENDPOINTS
 
   @Put('review/:id')
   async updateReview(
     @Param('id') id: string,
-    @Body() reviewDto: ReviewDto
-  ,
+    @Body() reviewDto: ReviewDto,
   ): Promise<DefaultResponseDto> {
-      const updatedReview = await this.reviewService.updateReview({where: { id: Number(id) },
-        data: {...reviewDto}});
+    const updatedReview = await this.reviewService.updateReview({
+      where: { id: Number(id) },
+      data: { ...reviewDto },
+    });
 
-     const response: DefaultResponseDto = {
+    const response: DefaultResponseDto = {
       status: 'Success',
       statusCode: HttpStatus.CREATED,
       statusText: `Review for user with ID: ${id} updated successfully.`,
@@ -57,13 +69,12 @@ export class ReviewController {
     return this.reviewService.deleteReview({ id: Number(id) });
   }
 
-  // GET ENDPOINTS 
+  // GET ENDPOINTS
 
   @Get('review/:id')
   async getReviewById(@Param('id') id: string): Promise<ReviewModel> {
     return this.reviewService.review({ id: Number(id) });
   }
-
 
   @Get('reviews')
   async getReviews(): Promise<ReviewModel[]> {
@@ -72,41 +83,35 @@ export class ReviewController {
     });
   }
 
-  @MessagePattern({cmd: 'create-user'})
+  @MessagePattern({ cmd: 'create-user' })
   async userCreated(@Ctx() context: RmqContext) {
-    console.log('In RMS create user')
+    console.log('In RMS create user');
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
-    await this.reviewService.createUser({})
+    await this.reviewService.createUser({});
 
     channel.ack(originalMsg);
-        
   }
-  
-  @MessagePattern({cmd: 'create-product'})
+
+  @MessagePattern({ cmd: 'create-product' })
   async productCreated(@Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
-    await this.reviewService.createProduct({})
-        
+    await this.reviewService.createProduct({});
+
     channel.ack(originalMsg);
   }
 
-
-  @MessagePattern({cmd: 'delete-user'})
+  @MessagePattern({ cmd: 'delete-user' })
   async userDeleted(@Payload() id: number, @Ctx() context: RmqContext) {
-      console.log(id)
-      const channel = context.getChannelRef();
-      const originalMsg = context.getMessage();
+    console.log(id);
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
 
-      await this.reviewService.deleteUser({id: Number(id)})
-      
-      channel.ack(originalMsg);
-  
-    }
+    await this.reviewService.deleteUser({ id: Number(id) });
 
-
+    channel.ack(originalMsg);
+  }
 }
-

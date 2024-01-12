@@ -23,13 +23,11 @@ async function bootstrap() {
         durable: false,
       },
     },
-    
   });
   await app.startAllMicroservices();
 
-
   const configService = app.get(ConfigService);
-  const port = configService.get("AUTH_APP_PORT");
+  const port = configService.get('AUTH_APP_PORT');
   await app.listen(port);
 }
 bootstrap();

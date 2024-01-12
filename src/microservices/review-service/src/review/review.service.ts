@@ -1,12 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Review, Prisma, User, Product } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ReviewDto } from 'src/common/dto/review.dto';
-import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class ReviewService {
-  constructor(private prisma: PrismaService){}
+  constructor(private prisma: PrismaService) {}
 
   async review(
     reviewWhereUniqueInput: Prisma.ReviewWhereUniqueInput,
@@ -15,7 +14,6 @@ export class ReviewService {
       where: reviewWhereUniqueInput,
     });
   }
-
 
   async reviews(params: {
     skip?: number;
@@ -34,15 +32,14 @@ export class ReviewService {
     });
   }
 
-
   async createReview(data: ReviewDto): Promise<Review> {
     return await this.prisma.review.create({
       data,
     });
-}
+  }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
-    console.log("In RMS createUser function")
+    console.log('In RMS createUser function');
     return await this.prisma.user.create({
       data,
     });
@@ -59,7 +56,7 @@ export class ReviewService {
     data: Prisma.ReviewUpdateInput;
   }): Promise<Review> {
     const { where, data } = params;
-    return  await this.prisma.review.update({
+    return await this.prisma.review.update({
       data,
       where,
     });
@@ -73,8 +70,7 @@ export class ReviewService {
 
   async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
     return await this.prisma.user.delete({
-        where,
+      where,
     });
   }
-  
 }

@@ -5,7 +5,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-
 @Module({
   controllers: [UserController],
   providers: [UserService, PrismaService],
@@ -14,7 +13,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       {
         name: 'VERIFY_TOKEN_SERVICE',
         imports: [ConfigModule],
-        useFactory: (configService: ConfigService) => ({
+        useFactory: () => ({
           transport: Transport.RMQ,
           options: {
             urls: [`amqp://user:password@rabbitmq:5672`],
@@ -31,7 +30,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       {
         name: 'USER_SERVICE',
         imports: [ConfigModule],
-        useFactory: (configService: ConfigService) => ({
+        useFactory: () => ({
           transport: Transport.RMQ,
           options: {
             urls: [`amqp://user:password@rabbitmq:5672`],
@@ -62,6 +61,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         inject: [ConfigService],
       },
     ]),
-  ]
+  ],
 })
 export class UserModule {}

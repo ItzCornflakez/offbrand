@@ -1,4 +1,4 @@
-export * from './defaultResponse.dto'
+export * from './defaultResponse.dto';
 export * from './order.dto';
 export * from './orderItem.dto';
 export * from './editOrderItem.dto';
