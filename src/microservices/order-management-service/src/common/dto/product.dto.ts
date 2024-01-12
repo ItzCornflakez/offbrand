@@ -1,2 +1,1 @@
-export class ProductDto {
-}
+export class ProductDto {}

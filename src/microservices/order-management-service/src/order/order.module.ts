@@ -4,20 +4,16 @@ import { OrderController } from './order.controller';
 import { PrismaService } from 'prisma/prisma.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthGuard } from 'src/common/utils/guards/auth.guard';
 
 @Module({
   controllers: [OrderController],
-  providers: [
-    OrderService,
-    PrismaService
-  ],
+  providers: [OrderService, PrismaService],
   imports: [
     ClientsModule.registerAsync([
       {
         name: 'VERIFY_TOKEN_SERVICE',
         imports: [ConfigModule],
-        useFactory: (configService: ConfigService) => ({
+        useFactory: () => ({
           transport: Transport.RMQ,
           options: {
             urls: [`amqp://user:password@rabbitmq:5672`],
@@ -30,6 +26,6 @@ import { AuthGuard } from 'src/common/utils/guards/auth.guard';
         inject: [ConfigService],
       },
     ]),
-  ]
+  ],
 })
 export class OrderModule {}

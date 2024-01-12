@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import { ReviewModule } from './review/review.module';
 import { ConfigService } from '@nestjs/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -16,9 +15,9 @@ async function bootstrap() {
     .setDescription('Endpoints for the offbrand review management service')
     .setVersion('1.0')
     .build();
-    const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup(`/docs`, app, document);
-  
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup(`/docs`, app, document);
+
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
@@ -44,9 +43,8 @@ async function bootstrap() {
     },
   });
 
-
   await app.startAllMicroservices();
-  
+
   await app.listen(port);
 }
 bootstrap();

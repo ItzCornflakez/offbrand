@@ -1,34 +1,45 @@
-import { Body, Controller, Delete, Get, HttpStatus, Inject, Param, Patch, Post, Put, Req, UseGuards, Version } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+  Version,
+} from '@nestjs/common';
 import { DefaultResponseDto, OrderDto } from 'src/common/dto';
-import { Order as OrderModel, Status, User as UserModel} from '@prisma/client';
+import { Status } from '@prisma/client';
 import { OrderService } from './order.service';
-import { ClientProxy, Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
+import {
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
 import { AuthGuard } from 'src/common/utils/guards/auth.guard';
 import { RoleGuard } from 'src/common/utils/guards/roles.guard';
 import { Roles } from 'src/common/utils/decorators/roles.decorators';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { response } from 'express';
 import { EditOrderDto } from 'src/common/dto/editOrder.dto';
-
 
 @Controller('orders')
 @ApiTags('Order')
 export class OrderController {
-    constructor(
-        private readonly orderService: OrderService
-        ) {}
+  constructor(private readonly orderService: OrderService) {}
 
-    // CREATE ENDPOINT
+  // CREATE ENDPOINT
 
   @Post()
   @Version('1')
   @ApiOperation({ summary: `Create a order` })
   @Roles('admin', 'employee', 'user')
   @UseGuards(AuthGuard, RoleGuard)
-  async createOrder(
-    @Body() dto: OrderDto 
-  ): Promise<DefaultResponseDto> {
-    console.log(dto)
+  async createOrder(@Body() dto: OrderDto): Promise<DefaultResponseDto> {
+    console.log(dto);
     const newOrder = await this.orderService.createOrder(dto);
 
     const response: DefaultResponseDto = {
@@ -47,10 +58,8 @@ export class OrderController {
   @Roles('admin', 'employee')
   @UseGuards(AuthGuard, RoleGuard)
   async findmyOrders(@Req() req): Promise<DefaultResponseDto> {
-      const orders = await this.orderService.orders({
-        where: {user_id: req.user.id}
-
-      
+    const orders = await this.orderService.orders({
+      where: { user_id: req.user.id },
     });
 
     const response: DefaultResponseDto = {
@@ -60,9 +69,8 @@ export class OrderController {
       data: orders,
     };
 
-    return response
+    return response;
   }
-
 
   @Get('orders')
   @Version('1')
@@ -70,10 +78,8 @@ export class OrderController {
   @Roles('admin', 'employee')
   @UseGuards(AuthGuard, RoleGuard)
   async findAllOrders(@Req() req): Promise<DefaultResponseDto> {
-      const orders = await this.orderService.orders({
-        where: {user_id: req.user.id}
-
-      
+    const orders = await this.orderService.orders({
+      where: { user_id: req.user.id },
     });
 
     const response: DefaultResponseDto = {
@@ -83,18 +89,17 @@ export class OrderController {
       data: orders,
     };
 
-    return response
+    return response;
   }
-  
+
   @Get(':id')
   @Version('1')
   @ApiOperation({ summary: `Get a order by id` })
   @Roles('admin', 'employee', 'user')
   @UseGuards(AuthGuard, RoleGuard)
-  async getOrderById(@Param('id') id: string
-  ): Promise<DefaultResponseDto> {
-    const order = await this.orderService.order({ 
-      id: Number(id)
+  async getOrderById(@Param('id') id: string): Promise<DefaultResponseDto> {
+    const order = await this.orderService.order({
+      id: Number(id),
     });
 
     const response: DefaultResponseDto = {
@@ -104,7 +109,7 @@ export class OrderController {
       data: order,
     };
 
-    return response
+    return response;
   }
 
   @Get('orders/:user_id/all')
@@ -112,12 +117,13 @@ export class OrderController {
   @ApiOperation({ summary: `Get all orders for a specific user` })
   @Roles('admin', 'employee')
   @UseGuards(AuthGuard, RoleGuard)
-  async getAllOrdersByUserId(@Param('user_id') id: string
+  async getAllOrdersByUserId(
+    @Param('user_id') id: string,
   ): Promise<DefaultResponseDto> {
     const orders = await this.orderService.orders({
-      where: { 
-        user_id: Number(id)
-      }
+      where: {
+        user_id: Number(id),
+      },
     });
 
     const response: DefaultResponseDto = {
@@ -127,7 +133,7 @@ export class OrderController {
       data: orders,
     };
 
-    return response
+    return response;
   }
 
   @Get('orders/:user_id/active')
@@ -135,13 +141,14 @@ export class OrderController {
   @ApiOperation({ summary: `Get all active orders for a specific user` })
   @Roles('admin', 'employee')
   @UseGuards(AuthGuard, RoleGuard)
-  async getActiveOrdersByUserId(@Param('user_id') id: string
+  async getActiveOrdersByUserId(
+    @Param('user_id') id: string,
   ): Promise<DefaultResponseDto> {
     const orders = await this.orderService.orders({
-      where: { 
+      where: {
         user_id: Number(id),
-        status: Status.Open
-      }
+        status: Status.Open,
+      },
     });
 
     const response: DefaultResponseDto = {
@@ -151,23 +158,26 @@ export class OrderController {
       data: orders,
     };
 
-    return response
+    return response;
   }
 
   @Get('orders/:user_id/all/orderItems')
   @Version('1')
-  @ApiOperation({ summary: `Get all orders with orderItems for a specific user` })
+  @ApiOperation({
+    summary: `Get all orders with orderItems for a specific user`,
+  })
   @Roles('admin', 'employee')
   @UseGuards(AuthGuard, RoleGuard)
-  async getAllOrdersWithOrderItemsByUserId(@Param('user_id') id: string
+  async getAllOrdersWithOrderItemsByUserId(
+    @Param('user_id') id: string,
   ): Promise<DefaultResponseDto> {
     const orders = await this.orderService.orders({
-      where: { 
-        user_id: Number(id)
-      }, include: {
-        ordersItems: true
-      }
-      
+      where: {
+        user_id: Number(id),
+      },
+      include: {
+        ordersItems: true,
+      },
     });
 
     const response: DefaultResponseDto = {
@@ -177,7 +187,7 @@ export class OrderController {
       data: orders,
     };
 
-    return response
+    return response;
   }
 
   @Patch(':id/delete')
@@ -185,9 +195,13 @@ export class OrderController {
   @ApiOperation({ summary: `Soft delete order by id` })
   @Roles('admin', 'employee', 'user')
   @UseGuards(AuthGuard, RoleGuard)
-  async deleteOrderItemStatus(@Param('id') id: string
+  async deleteOrderItemStatus(
+    @Param('id') id: string,
   ): Promise<DefaultResponseDto> {
-    const orderItem = await this.orderService.updateOrder({ where: {id: Number(id) }, data: {status: Status.Deleted}});
+    const orderItem = await this.orderService.updateOrder({
+      where: { id: Number(id) },
+      data: { status: Status.Deleted },
+    });
 
     const response: DefaultResponseDto = {
       status: 'Success',
@@ -204,11 +218,14 @@ export class OrderController {
   @ApiOperation({ summary: `Restore order by id` })
   @Roles('admin', 'employee')
   @UseGuards(AuthGuard, RoleGuard)
-  async editOrderItem(@Param('id') id: string, @Body() editOrderDto: EditOrderDto
+  async editOrderItem(
+    @Param('id') id: string,
+    @Body() editOrderDto: EditOrderDto,
   ): Promise<DefaultResponseDto> {
-    const orderItem = await this.orderService.updateOrder({ 
-      where: {id: Number(id) }, 
-      data: {...editOrderDto, updated_at: new Date()}});
+    const orderItem = await this.orderService.updateOrder({
+      where: { id: Number(id) },
+      data: { ...editOrderDto, updated_at: new Date() },
+    });
 
     const response: DefaultResponseDto = {
       status: 'Success',
@@ -220,15 +237,18 @@ export class OrderController {
     return response;
   }
 
-
   @Patch(':id/restore')
   @Version('1')
   @ApiOperation({ summary: `Restore order by id` })
   @Roles('admin', 'employee', 'user')
   @UseGuards(AuthGuard, RoleGuard)
-  async restoreOrderItemStatus(@Param('id') id: string
+  async restoreOrderItemStatus(
+    @Param('id') id: string,
   ): Promise<DefaultResponseDto> {
-    const orderItem = await this.orderService.updateOrder({ where: {id: Number(id) }, data: {status: Status.Open}});
+    const orderItem = await this.orderService.updateOrder({
+      where: { id: Number(id) },
+      data: { status: Status.Open },
+    });
 
     const response: DefaultResponseDto = {
       status: 'Success',
@@ -245,9 +265,13 @@ export class OrderController {
   @ApiOperation({ summary: `Close order by id` })
   @Roles('admin', 'employee', 'user')
   @UseGuards(AuthGuard, RoleGuard)
-  async closeOrderItemStatus(@Param('id') id: string
+  async closeOrderItemStatus(
+    @Param('id') id: string,
   ): Promise<DefaultResponseDto> {
-    const orderItem = await this.orderService.updateOrder({ where: {id: Number(id) }, data: {status: Status.Closed}});
+    const orderItem = await this.orderService.updateOrder({
+      where: { id: Number(id) },
+      data: { status: Status.Closed },
+    });
 
     const response: DefaultResponseDto = {
       status: 'Success',
@@ -259,42 +283,33 @@ export class OrderController {
     return response;
   }
 
-  @MessagePattern({cmd: 'create-product'})
+  @MessagePattern({ cmd: 'create-product' })
   async productCreated(@Ctx() context: RmqContext) {
-
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
-    this.orderService.createProduct({
-    })
+    this.orderService.createProduct({});
 
     channel.ack(originalMsg);
-        
   }
 
-  @MessagePattern({cmd: 'create-user'})
+  @MessagePattern({ cmd: 'create-user' })
   async userCreated(@Ctx() context: RmqContext) {
-
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
-    this.orderService.createUser({
-    })
+    this.orderService.createUser({});
 
     channel.ack(originalMsg);
-        
   }
 
-  @MessagePattern({cmd: 'delete-user'})
+  @MessagePattern({ cmd: 'delete-user' })
   async userDeleted(@Payload() id: number, @Ctx() context: RmqContext) {
-
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
-    this.orderService.deleteUser({id: id})
+    this.orderService.deleteUser({ id: id });
 
     channel.ack(originalMsg);
-        
   }
 }
-

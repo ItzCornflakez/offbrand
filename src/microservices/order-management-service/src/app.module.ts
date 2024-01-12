@@ -3,12 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 
 import { OrderModule } from './order/order.module';
 
-
 import {
   validateTestEnvFile,
   validateProductionEnvFile,
 } from '../config/environment.validation';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { OrderItemModule } from './orderItem/orderItem.module';
 
 //Validate the env file
@@ -33,8 +31,7 @@ switch (process.env.OMS_NODE_ENV) {
       validate: validateFunction,
     }), //Load configuration file
     OrderModule,
-    OrderItemModule
+    OrderItemModule,
   ],
-  
 })
 export class AppModule {}

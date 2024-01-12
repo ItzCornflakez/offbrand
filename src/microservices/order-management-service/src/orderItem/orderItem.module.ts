@@ -13,7 +13,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       {
         name: 'VERIFY_TOKEN_SERVICE',
         imports: [ConfigModule],
-        useFactory: (configService: ConfigService) => ({
+        useFactory: () => ({
           transport: Transport.RMQ,
           options: {
             urls: [`amqp://user:password@rabbitmq:5672`],
@@ -30,7 +30,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       {
         name: 'CREATE_ORDERITEM_SERVICE',
         imports: [ConfigModule],
-        useFactory: (configService: ConfigService) => ({
+        useFactory: () => ({
           transport: Transport.RMQ,
           options: {
             urls: [`amqp://user:password@rabbitmq:5672`],
@@ -43,6 +43,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         inject: [ConfigService],
       },
     ]),
-  ]
+  ],
 })
 export class OrderItemModule {}
