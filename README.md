@@ -59,8 +59,20 @@ Here is an small summarization of each microservice.
 
 ## Running the app
 
+**Info:** The system will run on the following ports:
+  - nestjs apps: 3000-3005,
+  - database ports: 3306-3311,
+  - RabbitMQ: 5672 and 15672.
+
+These ports can be adjusted in the .env file located in the root. 
+
+First, cd into the script directory located in the source directory of the project. 
 ```bash
 cd script
+```
+
+Then, run the deplyment script:
+```bash
 ./deploy.sh
 ```
 
