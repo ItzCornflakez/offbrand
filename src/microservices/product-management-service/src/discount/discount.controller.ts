@@ -26,8 +26,6 @@ import { AuthGuard } from 'src/common/utils/guards/auth.guard';
 import { RoleGuard } from 'src/common/utils/guards/roles.guard';
 
 @Controller('discounts')
-@Roles('admin')
-@UseGuards(AuthGuard, RoleGuard)
 @ApiTags('Discount')
 export class DiscountController {
   constructor(private discountService: DiscountService) {}
@@ -35,6 +33,8 @@ export class DiscountController {
   @Post()
   @Version('1')
   @ApiOperation({ summary: 'Create a discount' })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async createNewDiscount(
     @Body() createDiscountDto: CreateNewDiscountDto,
   ): Promise<DefaultResponseDto> {
@@ -54,6 +54,8 @@ export class DiscountController {
   @Get()
   @Version('1')
   @ApiOperation({ summary: 'Get all discounts' })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getAllDiscounts(
     @Query() getAllDiscountsQueryParamsDto: GetAllDiscountsQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -76,6 +78,8 @@ export class DiscountController {
   @Get('/active')
   @Version('1')
   @ApiOperation({ summary: 'Get all active discounts' })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getAllActiveDiscounts(
     @Query() getDiscountQueryParamsDto: GetDiscountsQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -100,6 +104,8 @@ export class DiscountController {
   @Get('/inactive')
   @Version('1')
   @ApiOperation({ summary: 'Get all inactive discounts' })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getAllInactiveDiscounts(
     @Query() getDiscountQueryParamsDto: GetDiscountsQueryParamsDto,
   ) {
@@ -124,6 +130,8 @@ export class DiscountController {
   @Get('/deleted')
   @Version('1')
   @ApiOperation({ summary: 'Get all deleted discounts' })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getAllDeletedDiscounts(
     @Query() getDiscountQueryParamsDto: GetDiscountsQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -148,6 +156,8 @@ export class DiscountController {
   @Get(':id')
   @Version('1')
   @ApiOperation({ summary: `Get a discount by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getDiscountById(
     @Param('id', ParseIntPipe) discountId: number,
   ): Promise<DefaultResponseDto> {
@@ -166,6 +176,8 @@ export class DiscountController {
   @Put(':id')
   @Version('1')
   @ApiOperation({ summary: `Update a discounts by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async updateDiscountById(
     @Param('id', ParseIntPipe) discountId: number,
     @Body() editDiscountDto: EditDiscountDto,
@@ -188,6 +200,8 @@ export class DiscountController {
   @Patch(':id/delete')
   @Version('1')
   @ApiOperation({ summary: `Delete a discount by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async deleteDiscountById(
     @Param('id', ParseIntPipe) discountId: number,
   ): Promise<DefaultResponseDto> {
@@ -205,6 +219,8 @@ export class DiscountController {
   @Patch(':id/restore')
   @Version('1')
   @ApiOperation({ summary: `Restore a discount by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async restoreDiscountById(
     @Param('id', ParseIntPipe) discountId: number,
   ): Promise<DefaultResponseDto> {
@@ -222,6 +238,8 @@ export class DiscountController {
   @Patch(':id/activate')
   @Version('1')
   @ApiOperation({ summary: `Activate a discount by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async activateDiscountById(
     @Param('id', ParseIntPipe) discountId: number,
   ): Promise<DefaultResponseDto> {
@@ -241,6 +259,8 @@ export class DiscountController {
   @Patch(':id/inactivate')
   @Version('1')
   @ApiOperation({ summary: `Inactivate a discount by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async inactivateDiscountById(
     @Param('id', ParseIntPipe) discountId: number,
   ): Promise<DefaultResponseDto> {

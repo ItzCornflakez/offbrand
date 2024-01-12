@@ -29,8 +29,6 @@ import { RoleGuard } from 'src/common/utils/guards/roles.guard';
 import { Roles } from 'src/common/utils/decorators/roles.decorators';
 
 @Controller('products')
-@Roles('admin')
-@UseGuards(AuthGuard, RoleGuard)
 @ApiTags('Products')
 export class ProductController {
   constructor(private productService: ProductService) {}
@@ -38,6 +36,8 @@ export class ProductController {
   @Post()
   @Version('1')
   @ApiOperation({ summary: `Create a product` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async createNewProduct(
     @Body() newProductBodyDto: CreateProductBodyDto,
   ): Promise<DefaultResponseDto> {
@@ -57,6 +57,8 @@ export class ProductController {
   @Post(':id/createNewInventory')
   @Version('1')
   @ApiOperation({ summary: `Add a new inventory to a product by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async addNewInventoryToProductById(
     @Param('id', ParseIntPipe) productId: number,
     @Body() newInventoryBodyDto: CreateInventoryBodyDto,
@@ -80,6 +82,8 @@ export class ProductController {
   @Get()
   @Version('1')
   @ApiOperation({ summary: `Get all products` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getAllProducts(
     @Query() getAllProductsQueryParamsDto: GetAllProductsQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -103,6 +107,8 @@ export class ProductController {
   @Get('/deleted')
   @Version('1')
   @ApiOperation({ summary: `Get all deleted products` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getAllDeletedProducts(
     @Query() getProductsQueryParamsDto: GetProductsQueryParamsDto,
   ): Promise<DefaultResponseDto> {
@@ -127,6 +133,8 @@ export class ProductController {
   @Get('/categories/:categoryId')
   @Version('1')
   @ApiOperation({ summary: `Get a product by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getProductsByCategoryId(
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Query() getProductsQueryParamsDto: GetProductsQueryParamsDto,
@@ -155,6 +163,8 @@ export class ProductController {
   @ApiOperation({
     summary: `Get all products belonging to a dicount by the discount's id`,
   })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getProductsByDiscountId(
     @Param('discountId', ParseIntPipe) discountId: number,
     @Query() getProductsQueryParamsDto: GetProductsQueryParamsDto,
@@ -181,6 +191,8 @@ export class ProductController {
   @Get(':id')
   @Version('1')
   @ApiOperation({ summary: `Get a product by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getProductById(
     @Param('id', ParseIntPipe) productId: number,
   ): Promise<DefaultResponseDto> {
@@ -199,6 +211,8 @@ export class ProductController {
   @Get(':id/inventories')
   @Version('1')
   @ApiOperation({ summary: `Get all of a products inventories by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async getInventoriesRelatedToProduct(
     @Param('id', ParseIntPipe) productId: number,
   ): Promise<DefaultResponseDto> {
@@ -218,6 +232,8 @@ export class ProductController {
   @Put(':id')
   @Version('1')
   @ApiOperation({ summary: `Update a product by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async updateProductById(
     @Param('id', ParseIntPipe) productId: number,
     @Body() editProductBodyDto: EditProductBodyDto,
@@ -240,6 +256,8 @@ export class ProductController {
   @Patch(':id/addToCategory/:categoryId')
   @Version('1')
   @ApiOperation({ summary: `Add a product to a category by the category's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async addProductToCategoryById(
     @Param('id', ParseIntPipe) productId: number,
     @Param('categoryId', ParseIntPipe) categoryId: number,
@@ -264,6 +282,8 @@ export class ProductController {
   @ApiOperation({
     summary: `Remove a product to a category by the category's id`,
   })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async removeProductToCategoryById(
     @Param('id', ParseIntPipe) productId: number,
     @Param('categoryId', ParseIntPipe) categoryId: number,
@@ -286,6 +306,8 @@ export class ProductController {
   @Patch(':id/applyDiscount/:discountid')
   @Version('1')
   @ApiOperation({ summary: `Add a discount to a product by the discount's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async setDiscountOnProduct(
     @Param('id', ParseIntPipe) productId: number,
     @Param('discountid', ParseIntPipe) discountId: number,
@@ -310,6 +332,8 @@ export class ProductController {
   @ApiOperation({
     summary: `Remove a discount to a product by the discount's id`,
   })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async removeDiscountFromProductById(
     @Param('id', ParseIntPipe) productId: number,
   ): Promise<DefaultResponseDto> {
@@ -329,6 +353,8 @@ export class ProductController {
   @Patch(':id/delete')
   @Version('1')
   @ApiOperation({ summary: `Delete a product by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async deleteProductById(
     @Param('id', ParseIntPipe) productId: number,
   ): Promise<DefaultResponseDto> {
@@ -346,6 +372,8 @@ export class ProductController {
   @Patch(':id/restore')
   @Version('1')
   @ApiOperation({ summary: `Restore a product by it's id` })
+  @Roles('admin')
+  @UseGuards(AuthGuard, RoleGuard)
   async restoreProductById(
     @Param('id', ParseIntPipe) productId: number,
   ): Promise<DefaultResponseDto> {

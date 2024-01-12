@@ -38,7 +38,7 @@ export class UserController {
       if(e instanceof Error){
         const response: DefaultResponseDto = {
           status: 'Fail',
-          statusCode: HttpStatus.CREATED,
+          statusCode: HttpStatus.CONFLICT,
           statusText: 'Email already exists in database.',
           data: e,
         };
@@ -70,7 +70,7 @@ export class UserController {
           console.log("Thrown error", e)
           const response: DefaultResponseDto = {
             status: 'Fail ur bad',
-            statusCode: HttpStatus.CREATED,
+            statusCode: HttpStatus.CONFLICT,
             statusText: 'Email already exists in database.',
             data: e,
           };
@@ -96,7 +96,7 @@ export class UserController {
    
     const response: DefaultResponseDto = {
       status: 'Success',
-      statusCode: HttpStatus.CREATED,
+      statusCode: HttpStatus.OK,
       statusText: `User with ID: ${id} updated successfully.`,
       data: updatedUser,
     };
@@ -115,7 +115,7 @@ export class UserController {
 
      const response: DefaultResponseDto = {
       status: 'Success',
-      statusCode: HttpStatus.CREATED,
+      statusCode: HttpStatus.OK,
       statusText: `Userdetails for user with ID: ${id} updated successfully.`,
       data: updatedUserDetails,
     };
@@ -134,7 +134,7 @@ export class UserController {
 
     const response: DefaultResponseDto = {
       status: 'Success',
-      statusCode: HttpStatus.CREATED,
+      statusCode: HttpStatus.OK,
       statusText: `The password for user with ID: '${id}' was updated successfully.`,
     };
 
@@ -152,7 +152,7 @@ export class UserController {
 
     const response: DefaultResponseDto = {
       status: 'Success',
-      statusCode: HttpStatus.CREATED,
+      statusCode: HttpStatus.OK,
       statusText: `User deleted successfully.`,
     };
 
@@ -164,7 +164,7 @@ export class UserController {
 
     const response: DefaultResponseDto = {
       status: 'Success',
-      statusCode: HttpStatus.CREATED,
+      statusCode: HttpStatus.OK,
       statusText: `Userdetails for user with ID: ${id} was retrived successfully.`,
       data: userDetails,
     };

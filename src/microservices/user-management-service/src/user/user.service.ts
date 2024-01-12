@@ -97,6 +97,12 @@ export class UserService {
 
     try{
       await this.prisma.$transaction(async (transactionClient) => {
+
+        const getUserDetails = await transactionClient.user_Details.findUnique({where : {email: allUserDto.email} })
+
+        if(getUserDetails){
+          throw new Error("Email already exists")   
+        }
         
         const user = await transactionClient.user.create({data: {role: 'user'}});
 
@@ -124,11 +130,8 @@ export class UserService {
         };
         const createdPassword = await transactionClient.password.create({data: passwordObject})
 
-        try{
-          const createdUserDetails = await transactionClient.user_Details.create({data: userDetailsObject})
-        } catch (e) {
-          throw new Error("Email already exists")      
-        }
+
+        const createdUserDetails = await transactionClient.user_Details.create({data: userDetailsObject})
 
         const result = await this.client.send(
           { cmd: 'create-user' }, {},
@@ -154,6 +157,13 @@ export class UserService {
       };
   
       await this.prisma.$transaction(async (transactionClient) => {
+
+        const getUserDetails = await transactionClient.user_Details.findUnique({where : {email: allUserAdminDto.email} })
+
+        if(getUserDetails){
+          throw new Error("Email already exists")   
+        }
+
         const createdUser = await transactionClient.user.create({ data: userObject });
   
         let userDetailsObject: UserDetailsDto = {
@@ -175,14 +185,9 @@ export class UserService {
         };
         const createdPassword = await transactionClient.password.create({ data: passwordObject });
   
-        try {
           const createdUserDetails = await transactionClient.user_Details.create({
             data: userDetailsObject,
           });
-        } catch (e) {
-          console.log("Thrown error", e);
-          throw new Error("Email already exists");
-        }
   
         const result = await this.client.send({ cmd: 'create-user' }, {});
         await result.subscribe();
