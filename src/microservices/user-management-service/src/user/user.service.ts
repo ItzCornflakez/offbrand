@@ -96,7 +96,7 @@ export class UserService {
   async createUser(allUserDto: AllUserDto ) {
 
     try{
-      this.prisma.$transaction(async (transactionClient) => {
+      await this.prisma.$transaction(async (transactionClient) => {
         
         const user = await transactionClient.user.create({data: {role: 'user'}});
 
@@ -147,60 +147,54 @@ export class UserService {
     }
   }
 
-  async createUserAdmin(allUserDto: AllUserAdminDto ) {
-
-    let userObject: UserDto
-    this.prisma.$transaction(async (transactionClient) => {
-
-      userObject = {
-        role: allUserDto.role
+  async createUserAdmin(allUserAdminDto: AllUserAdminDto) {
+    try {
+      const userObject: UserDto = {
+        role: allUserAdminDto.role,
       };
-
-      userObject.role = String(allUserDto.role);
-      const createdUser = await transactionClient.user.create({data: userObject})
-
-      let userDetailsObject: UserDetailsDto = {
-        userId: createdUser.id,
-        first_name: allUserDto.first_name,
-        last_name: allUserDto.last_name,
-        email: allUserDto.email,
-        phone_number: allUserDto.phone_number,
-        address_1: allUserDto.address_1,
-        address_2: allUserDto.address_2,
-        city: allUserDto.city,
-        postal_code: allUserDto.postal_code
-      }
-      
-      const hashedPassword = await hashPassword(allUserDto.password);
-      let passwordObject: PasswordDto = {
-        userId: createdUser.id,
-        hash: hashedPassword
-      };
-      const createdPassword = await transactionClient.password.create({data: passwordObject})
-
-      try{
-        const createdUserDetails = await transactionClient.user_Details.create({data: userDetailsObject})
-      } catch (e) {
-        throw new ConflictException("Email already exists")      }
-
-      
-      const result = await this.client.send(
-        { cmd: 'create-user' },
-        {},
-        );
-      await result.subscribe()
+  
+      await this.prisma.$transaction(async (transactionClient) => {
+        const createdUser = await transactionClient.user.create({ data: userObject });
+  
+        let userDetailsObject: UserDetailsDto = {
+          userId: createdUser.id,
+          first_name: allUserAdminDto.first_name,
+          last_name: allUserAdminDto.last_name,
+          email: allUserAdminDto.email,
+          phone_number: allUserAdminDto.phone_number,
+          address_1: allUserAdminDto.address_1,
+          address_2: allUserAdminDto.address_2,
+          city: allUserAdminDto.city,
+          postal_code: allUserAdminDto.postal_code,
+        };
+  
+        const hashedPassword = await hashPassword(allUserAdminDto.password);
+        let passwordObject: PasswordDto = {
+          userId: createdUser.id,
+          hash: hashedPassword,
+        };
+        const createdPassword = await transactionClient.password.create({ data: passwordObject });
+  
+        try {
+          const createdUserDetails = await transactionClient.user_Details.create({
+            data: userDetailsObject,
+          });
+        } catch (e) {
+          console.log("Thrown error", e);
+          throw new Error("Email already exists");
+        }
+  
+        const result = await this.client.send({ cmd: 'create-user' }, {});
+        await result.subscribe();
+  
+        //Send to reviewMicroService
+        const rmsResult = await this.rmsClient.send({ cmd: 'create-user' }, {});
+        await rmsResult.subscribe();
+      });
+    } catch (e) {
+      console.log("Thrown error", e);
+      throw e;
     }
-    );
-
-    //Send to reviewMicroService
-    const rmsResult = await this.rmsClient.send(
-      { cmd: 'create-user' },
-      {},
-    );
-    await rmsResult.subscribe();
-
-    return userObject
-
   }
 
   async updateUser(params: {

@@ -36,7 +36,13 @@ export class UserController {
       return response;
     } catch(e) {
       if(e instanceof Error){
-        throw new ConflictException(e.message)
+        const response: DefaultResponseDto = {
+          status: 'Fail',
+          statusCode: HttpStatus.CREATED,
+          statusText: 'Email already exists in database.',
+          data: e,
+        };
+        return response
       }
     }
   }
@@ -47,18 +53,31 @@ export class UserController {
   async createUserAdmin(
     @Body() allUserDto: AllUserAdminDto): Promise<DefaultResponseDto> {
       // Create the user, userDetails and Password tables
-      const user = await this.userService.createUser(allUserDto);
-      
-
-      const response: DefaultResponseDto = {
-        status: 'Success',
-        statusCode: HttpStatus.CREATED,
-        statusText: 'User created successfully.',
-        data: user,
-      };
+      try{
+        const user = await this.userService.createUserAdmin(allUserDto);
+        
   
-      return response;
-  }
+        const response: DefaultResponseDto = {
+          status: 'Success',
+          statusCode: HttpStatus.CREATED,
+          statusText: 'User created successfully.',
+          data: user,
+        };
+    
+        return response;
+      } catch(e) {
+        if(e instanceof Error){
+          console.log("Thrown error", e)
+          const response: DefaultResponseDto = {
+            status: 'Fail ur bad',
+            statusCode: HttpStatus.CREATED,
+            statusText: 'Email already exists in database.',
+            data: e,
+          };
+          return response
+        }
+      }
+    }
 
   @Put('user/:id')
   async updateUser(
